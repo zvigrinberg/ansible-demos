@@ -5,4 +5,5 @@
 - Create a sample playbook
 - Create a sample role
 - Create a sample inventory
+- Create in advance 2-3 vm for demos
 
