@@ -1,0 +1,9 @@
+virtualMachines:
+  hosts:      
+   fcos-test-01:
+     ansible_host: 192.168.122.105
+   fcos-test-02:
+     ansible_host: 192.168.122.146         
+   fcos-test-03:
+     ansible_host: 192.168.122.143         
+

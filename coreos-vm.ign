@@ -1,0 +1,27 @@
+{
+  "ignition": {
+    "version": "3.3.0"
+  },
+  "passwd": {
+    "users": [
+      {
+        "groups": [
+          "wheel",
+          "sudo",
+          "docker"
+        ],
+        "name": "zgrinber",
+        "passwordHash": "$y$j9T$sqXd506Up5wl69FAYPjYg/$p5IumvAiiFV596jfQPmCUl9oFPrKGfTKqOz71S.O786",
+        "sshAuthorizedKeys": [
+          "ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIJKZuSxSTyRg3tG240aect/U0uSLXPZmTJlA46vT4vUN zgrinber@redhat.com"
+        ]
+      },
+      {
+        "name": "core",
+        "sshAuthorizedKeys": [
+          "ssh-rsa AAAAB3NzaC1yc2EAAAADAQABAAABgQDFVLDaO+U4b92KkdMo2NgQfcUmv4v1c6m+yvA+1GqcFjzSF+i5vad6iZtggVzT9qOtFsffZDmIX0jXoyBIAo+hBMNCP6oYGgVAvO1E8osWw5sxmQ2uUpTZnFREkFSnKraPKNLP5Sk6CblK2Ts+nupdyuYIcgXMnhc66zuHCTrh8sN4B5tTNZGJiXeWSZY7wCyFlPFUUja5ixc02v0MoGWEIsjRwJ7XSEPZA3XSX3CqpPkg5ThjszkDD4SPEqO1XoZUGkYGCMFRm3Bspjuk5wu0oIPFsR1w4VKUEgdPd8bcm0i/IkxljYKcM8yIXXPFWOcEvHPSubdR79GB3hOETetlmaKHTHqwMEEz1C9MHic07QywEo8A448Qxn3I63jmSPSVkXrhbpJteEPG1c4ri0NYxwlHRbuEYQSM+efgYXZNFJqxH7iKwwy2it5U00cs9IPOUspyCrnlhU9m0VJvwbjpmMB/vPQc92RMvxv9bJQBW9m8jhrDkKZ1eg0MN9/H0U0= zgrinber@zgrinber.tlv.csb"
+        ]
+      }
+    ]
+  }
+}
