@@ -12,7 +12,8 @@
 
    - name: Print success Message
      ansible.builtin.debug:
-       msg: "Successfully {{ successMessage }}"
+#       var: ansible_facts
+       msg: "Successfully {{ successMessage }} - {{ ansible_nodename }}, with IP Address: {{ ansible_facts['all_ipv4_addresses'] }} "
 
 - name: Install tree fs utility on ubuntu machines
   hosts: virtualMachinesUbuntu
@@ -24,4 +25,5 @@
         state: present
     - name: Print success Message
       ansible.builtin.debug:
-        msg: "Successfully {{ successMessage }}"
+#        var: ansible_facts
+        msg: "Successfully {{ successMessage }} - {{ ansible_nodename }}, with IP Address: {{ ansible_facts['all_ipv4_addresses'] }}  "
