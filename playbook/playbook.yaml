@@ -1,18 +1,27 @@
-- name: Install tree fs utility and reboot system
-  hosts: virtualMachines
+- name: Install tree fs utility on CoreOs machines and reboot system
+  hosts: virtualMachinesCoreOs
   become: true
   tasks:
-          ##   - name: Install yum package manager
-          ##     community.general.rpm_ostree_pkg:
-          ##       name: yum
-          ##       state: present
-
-   - name: Install tree package
-     yum:
+   - name: Install tree fs utility
+     community.general.rpm_ostree_pkg:
        name: tree
-       state: latest
-       use_backend: yum4
+       state: present
 
    - name: reboot the machine
      ansible.builtin.reboot:
-    
+
+   - name: Print success Message
+     ansible.builtin.debug:
+       msg: "Successfully {{ successMessage }}"
+
+- name: Install tree fs utility on ubuntu machines
+  hosts: virtualMachinesUbuntu
+  become: true
+  tasks:
+    - name: Install tree fs utility
+      ansible.builtin.apt:
+        name: tree
+        state: present
+    - name: Print success Message
+      ansible.builtin.debug:
+        msg: "Successfully {{ successMessage }}"
