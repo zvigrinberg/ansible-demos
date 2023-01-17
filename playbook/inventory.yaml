@@ -9,5 +9,8 @@ virtualMachinesUbuntu:
   hosts:
     ubuntu-01:
       ansible_host: 192.168.122.233
+    ubuntu-02:
+      ansible_host: 192.168.122.85
+
   vars:
     successMessage: "installed tree binary on  Ubuntu host"
