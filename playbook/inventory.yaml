@@ -1,7 +1,12 @@
 virtualMachinesCoreOs:
   hosts:      
-   fcos-test-01:
-     ansible_host: 192.168.122.105
+   coreos-01:
+     ansible_host: 192.168.122.52
+   coreos-02:
+     ansible_host: 192.168.122.64
+   coreos-03:
+     ansible_host: 192.168.122.95
+
   vars:
     successMessage: "installed tree binary on Fedora CoreOS host"
 
@@ -11,6 +16,8 @@ virtualMachinesUbuntu:
       ansible_host: 192.168.122.233
     ubuntu-02:
       ansible_host: 192.168.122.85
+    ubuntu-03:
+      ansible_host: 192.168.122.245
 
   vars:
     successMessage: "installed tree binary on  Ubuntu host"
