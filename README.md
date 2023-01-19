@@ -154,6 +154,7 @@ ssh zgrinber@ip_from_section11
 ```
 15. Repeat steps 8-14 for each additional CoreOS VM, with these 2 additional steps To change machine names before 8-14 steps:
 ```shell
+# For example, for provisioning another Fedore CoreOs Machine with name coreos-02, run the following, and then repeat steps 8-14
 export VM_NAME=coreos-02 ; sed -i -E 's/source\": \"data:,core-os-[0-9x]{1,2}\"/source\": \"data:,'$VM_NAME'/g' coreos-vm.ign
 ```
    
