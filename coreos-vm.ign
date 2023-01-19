@@ -23,5 +23,17 @@
         ]
       }
     ]
+  },
+  "storage": {
+    "files": [
+      {
+        "path": "/etc/hostname",
+        "contents": {
+          "compression": "",
+          "source": "data:,core-os-1"
+        },
+        "mode": 420
+      }
+    ]
   }
 }
