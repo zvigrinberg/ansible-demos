@@ -73,7 +73,7 @@ ssh zgrinber@ip_from_section14
 ```shell
 podman run -ti --rm quay.io/coreos/mkpasswd --method=yescrypt
 ```
-2. print one of the public ssh keys in /home/zgrinber/.ssh/, for example:
+2. Print one of the public ssh keys in /home/zgrinber/.ssh/, for example:
 ```shell
 cat ~/.ssh/id_ed25519.pub
 ```
@@ -110,7 +110,7 @@ podman run --interactive --rm quay.io/coreos/butane:release \
 ```shell
 curl -X GET https://builds.coreos.fedoraproject.org/prod/streams/stable/builds/37.20221225.3.0/x86_64/fedora-coreos-37.20221225.3.0-qemu.x86_64.qcow2.xz -o /tmp/fedora-coreos-37.20221225.3.0-qemu.x86_64.qcow2.xz
 ```
-5. uncompress it to same directory
+5. Uncompress it to same directory
 ```shell
 xz -k -d /tmp/fedora-coreos-37.20221225.3.0-qemu.x86_64.qcow2.xz
 ```
@@ -125,7 +125,7 @@ STREAM=\"stable\"
 DISK_GB=\"10\"" | tee vm-args.properties ; source vm-args.properties
 ```
 
-7. define the following environment variable, using ignition file path in its environment variables:
+7. Define the following environment variable, using ignition file path in its environment variables:
 ```shell
 export IGNITION_DEVICE_ARG=(--qemu-commandline="-fw_cfg name=opt/com.coreos/config,file=${IGNITION_CONFIG}")
 ```
@@ -152,7 +152,7 @@ sudo systemctl reboot
 ```shell
 ssh zgrinber@ip_from_section11
 ```
-15. Repeat steps 8-14 for each additional CoreOS VM, with these 2 additional steps To change machine names before 8-14 steps:
+15. Repeat steps 8-14 for each additional CoreOS VM, with these 2 additional steps To change machine name before 8-14 steps:
 ```shell
 # For example, for provisioning another Fedore CoreOs Machine with name coreos-02, run the following, and then repeat steps 8-14
 export VM_NAME=coreos-02 ; sed -i -E 's/source\": \"data:,core-os-[0-9x]{1,2}\"/source\": \"data:,'$VM_NAME'/g' coreos-vm.ign
