@@ -158,3 +158,102 @@ ssh zgrinber@ip_from_section11
 export VM_NAME=coreos-02 ; sed -i -E 's/source\": \"data:,core-os-[0-9x]{1,2}\"/source\": \"data:,'$VM_NAME'/g' coreos-vm.ign
 ```
    
+### Advanced Demo 
+
+#### Goal
+
+To Create Kubernetes Cluster of 1 master and 2 workers using Ansible and LXC (Linux Containers Virtualization Technology) on Ubuntu Host.
+
+
+#### Prerequisites
+
+- Ubuntu Host ( Tested on version 20.04) with root/sudo privileges.
+- At Least free 50 GB disk space on Host. 
+- Ansible And Python Installed on Host.
+- Lxc Installed On Host
+- Host with free 6 VCPUs and 8 GB RAM.
+
+
+#### Manual Procedure.
+
+1. SSH into ubuntu HOST.
+2. Install LXC 
+```shell
+sudo apt-get update && sudo apt-get install lxc -y
+```
+3. Check that lxc service is up and running, and init lxd
+```shell
+sudo systemctl status lxc
+lxd init
+```
+4. Create empty LXC profile for k8s:
+```shell
+cat > ./advanced-demo/k8s-config-profile.yaml << EOF
+config:
+  limits.cpu: "2"
+  limits.memory: 2GB
+  limits.memory.swap: "false"
+  linux.kernel_modules: ip_tables,ip6_tables,nf_nat,overlay,br_netfilter
+  raw.lxc: "lxc.apparmor.profile=unconfined\nlxc.cap.drop= \nlxc.cgroup.devices.allow=a\nlxc.mount.auto=proc:rw
+    sys:rw\nlxc.mount.entry = /dev/kmsg dev/kmsg none defaults,bind,create=file"
+  security.privileged: "true"
+  security.nesting: "true"
+description: LXD profile for Kubernetes
+devices:
+  eth0:
+    name: eth0
+    nictype: bridged
+    parent: lxdbr0
+    type: nic
+  root:
+    path: /
+    pool: default
+    type: disk
+name: k8s
+used_by: []
+EOF
+
+cat ./advanced-demo/k8s-config-profile.yaml | lxc profile edit k8s
+```
+
+5. Make sure that you can see profile created alongside default:
+```shell
+lxc profile list
+```
+6. Create 1 container for master and 2 containers for workers , using the k8s profile:
+```shell
+lxc launch ubuntu:20.04 kmaster --profile k8s
+lxc launch ubuntu:20.04 kworker1 --profile k8s
+lxc launch ubuntu:20.04 kworker2 --profile k8s
+```
+
+7. If host is using cgroup v1, skip this step (only needed for cgroup v2):
+```shell
+lxc config device add kmaster "kmsg" unix-char source="/dev/kmsg" path="/dev/kmsg"
+lxc config device add kworker1 "kmsg" unix-char source="/dev/kmsg" path="/dev/kmsg"
+lxc config device add kworker2 "kmsg" unix-char source="/dev/kmsg" path="/dev/kmsg"
+lxc restart kmaster kworker1 kworker2
+```
+8. Install Kubernetes on master container, and wait for it to finish:
+```shell
+cat advanced-demo/bootstrap-kube.sh | lxc exec kmaster bash
+```
+
+9. Install Kubernetes on two worker containers as worker nodes, and join them to the cluster:
+```shell
+cat advanced-demo/bootstrap-kube.sh | lxc exec kworker1 bash
+cat advanced-demo/bootstrap-kube.sh | lxc exec kworker2 bash
+```
+10. Check that cluster provisioned correctly:
+```shell
+lxc exec kmaster bash
+kubectl get nodes
+```
+
+12. Make cluster accessible from host:
+```shell
+lxc file pull kmaster/etc/kubernetes/admin.conf ~/.kube/config
+# If kubectl doesn't installed in host, kindly install it 
+sudo snap install --classic kubectl
+kubectl get nodes
+```
