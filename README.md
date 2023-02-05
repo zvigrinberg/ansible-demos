@@ -188,6 +188,7 @@ lxd init
 ```
 4. Create empty LXC profile for k8s:
 ```shell
+lxc profile create k8s
 cat > ./advanced-demo/k8s-config-profile.yaml << EOF
 config:
   limits.cpu: "2"
