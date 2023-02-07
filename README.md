@@ -253,6 +253,7 @@ kubectl get nodes
 
 12. Make cluster accessible from host:
 ```shell
+mkdir -p ~/.kube
 lxc file pull kmaster/etc/kubernetes/admin.conf ~/.kube/config
 # If kubectl doesn't installed in host, kindly install it 
 sudo snap install --classic kubectl
