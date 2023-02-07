@@ -1,0 +1,134 @@
+On Host: 
+lxc config device add nodeName "kmsg" unix-char source="/dev/kmsg" path="/dev/kmsg"
+lxc config device add nodeName bpf disk source=/sys/fs/bpf path=/sys/fs/bpf
+   50  sudo apt-get update
+   51  sudo apt-get install -y apt-transport-https ca-certificates curl
+   52  sudo curl -fsSLo /etc/apt/keyrings/kubernetes-archive-keyring.gpg https://packages.cloud.google.com/apt/doc/apt-key.gpg
+   53  echo "deb [signed-by=/etc/apt/keyrings/kubernetes-archive-keyring.gpg] https://apt.kubernetes.io/ kubernetes-xenial main" | sudo tee /etc/apt/sources.list.d/kubernetes.list
+   54  sudo apt-get update
+   55  sudo apt-get install -y kubectl
+
+On each Node:
+
+Common:
+---------
+Verify that following port are opened
+    1  nc 
+    2  nc 127.0.0.1 6443
+    3  nc 127.0.0.1 2379
+    4  nc 127.0.0.1 2380
+    5  nc 127.0.0.1 10250
+    6  nc 127.0.0.1 10259
+    7  nc 127.0.0.1 10257
+
+   25  export OS=xUbuntu_22.04
+   26  echo $OS
+   27  export VERSION=1.26
+   28  echo "deb [signed-by=/usr/share/keyrings/libcontainers-archive-keyring.gpg] https://download.opensuse.org/repositories/devel:/kubic:/libcontainers:/stable/$OS/ /" > /etc/apt/sources.list.d/devel:kubic:libcontainers:stable.list
+   29  echo "deb [signed-by=/usr/share/keyrings/libcontainers-crio-archive-keyring.gpg] https://download.opensuse.org/repositories/devel:/kubic:/libcontainers:/stable:/cri-o:/$VERSION/$OS/ /" > /etc/apt/sources.list.d/devel:kubic:libcontainers:stable:cri-o:$VERSION.list
+   30  mkdir -p /usr/share/keyrings
+   31  curl -L https://download.opensuse.org/repositories/devel:/kubic:/libcontainers:/stable/$OS/Release.key | gpg --dearmor -o /usr/share/keyrings/libcontainers-archive-keyring.gpg
+   32  curl -L https://download.opensuse.org/repositories/devel:/kubic:/libcontainers:/stable:/cri-o:/$VERSION/$OS/Release.key | gpg --dearmor -o /usr/share/keyrings/libcontainers-crio-archive-keyring.gpg
+   33  apt-get update
+   34  apt-get install cri-o cri-o-runc
+   35  apt-get update -qq && apt-get install -y   libbtrfs-dev   containers-common   git   golang-go   libassuan-dev   libdevmapper-dev   libglib2.0-dev   libc6-dev   libgpgme-dev   libgpg-error-dev   libseccomp-dev   libsystemd-dev   libselinux1-dev   pkg-config   go-md2man   cri-o-runc   libudev-dev   software-properties-common   gcc   make
+   45  sudo systemctl daemon-reload
+   46  sudo systemctl enable crio
+   47  sudo systemctl start crio
+   48  sudo systemctl status crio
+   49  ll /var/run/crio/crio.sock
+   50  sudo apt-get update
+   51  sudo apt-get install -y apt-transport-https ca-certificates curl
+   52  sudo curl -fsSLo /etc/apt/keyrings/kubernetes-archive-keyring.gpg https://packages.cloud.google.com/apt/doc/apt-key.gpg
+   53  echo "deb [signed-by=/etc/apt/keyrings/kubernetes-archive-keyring.gpg] https://apt.kubernetes.io/ kubernetes-xenial main" | sudo tee /etc/apt/sources.list.d/kubernetes.list
+   54  sudo apt-get update
+   55  sudo apt-get install -y kubelet kubeadm kubectl
+   56  sudo apt-mark hold kubelet kubeadm kubectl
+   57  vi /etc/crio/crio.conf
+   58  vi systemctl status kubelet
+   59  vi journalctl status kubelet
+   60  journalctl status kubelet
+   61  journalctl -u kubelet
+   62  kubectl get nodes
+   63  kubeadm init
+   64  kubeadm init --v=5
+   65  kubeadm init --v=9
+   66  ll /lib/modules/5.15.0-58-generic
+   67  ll /lib/modules/
+   68  apt-get update 
+   69  apt-get install linux-objects-nvidia-418-server-5.15.0-58-generic
+   70  ll /lib/modules/5.15.0-58-generic
+   71  ll /lib/modules/5.15.0-58-generic/kernel/
+   72  ll /lib/modules/5.15.0-58-generic/kernel/nvidia-418srv/
+   73  ll /lib/modules/5.15.0-58-generic/kernel/nvidia-418srv/bits/
+
+#Only on master:
+-----------------
+   76  kubeadm init --ignore-preflight-errors=all --v=5
+
+# Join command on workers:
+kubeadm join 10.251.109.206:6443 --token xxxxxxxxxxxxxxx --discovery-token-ca-cert-hash xxxxxxxxxxxxxxxxxxxxxxxxxx --ignore-preflight-errors=all --v=5
+
+   77  systemctl status kubelet
+   78  journalctl -u kubelet
+   79  exit
+   80  journalctl -u kubelet
+   81  kubeadm init
+   82  kubeadm reset
+   83  history | grep kubeadm
+   84  kubeadm init 
+   85  kubectl get pods
+   86  mkdir -p $HOME/.kube
+   87  kubectl get pods
+   88  kubectl get pods -A
+# Only on master node, install network CNI cilium:
+--------------------------------------------------
+   90  apt-get update 
+   91  apt-get install helm
+   92  curl -fsSL -o get_helm.sh https://raw.githubusercontent.com/helm/helm/main/scripts/get-helm-3
+   93  $ chmod 700 get_helm.sh
+   94  $ ./get_helm.sh
+   95  ll
+   96  helm
+   97  which helm
+   98  ll
+   99  chmod +x get_helm.sh 
+  100  ./get_helm.sh 
+  101  helm
+  102  helm repo add cilium https://helm.cilium.io/
+  103  helm install cilium cilium/cilium --version 1.12.6 --namespace kube-system
+  107  kubectl get pods -n kube-system
+
+
+cat <<EOF | sudo tee /etc/systemd/system/sys-fs-bpf.mount
+[Unit]
+Description=Cilium BPF mounts
+Documentation=https://docs.cilium.io/
+DefaultDependencies=no
+Before=local-fs.target umount.target
+After=swap.target
+
+[Mount]
+What=bpffs
+Where=/sys/fs/bpf
+Type=bpf
+Options=rw,nosuid,nodev,noexec,relatime,mode=700
+
+[Install]
+WantedBy=multi-user.target
+EOF
+
+
+mount bpffs /sys/fs/bpf -t bpf
+
+mount /run/cilium/cgroupv2 --make-shared
+systemctl restart kubelet
+
+Finally, on host, run:
+
+mkdir -p $HOME/.kube
+lxc file pull kmaster/etc/kubernetes/admin.conf ~/.kube/config
+
+
+
+
