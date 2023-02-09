@@ -1,0 +1,7 @@
+- name: Template Demo
+  hosts: all
+  tasks:
+   - name: Test Jinja
+     template:
+        src: example.j2
+        dest: example.out

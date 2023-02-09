@@ -14,16 +14,20 @@ virtualMachinesUbuntu:
   hosts:
     ubuntu-01:
       ansible_host: 192.168.122.233
+      key1: "value1-host-1"
     ubuntu-02:
       ansible_host: 192.168.122.85
+      key1: "value1-host-2"
     ubuntu-03:
       ansible_host: 192.168.122.245
 
   vars:
     successMessage: "installed tree binary on  Ubuntu host"
+    key1: "value1-group"
 
-all:    
+all:
   vars:
-    key1: "value1"
-    key2: "value2" 
+   myKeys:      
+     key1: "value1-all-old"
+     key2: "value2" 
 
