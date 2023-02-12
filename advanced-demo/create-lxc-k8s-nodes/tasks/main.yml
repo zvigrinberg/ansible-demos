@@ -44,9 +44,9 @@
     state: started
     template: ubuntu:22.04
   loop:
-    - kmaster
-    - kworker1
-    - kworker2
+    - "kmaster"
+    - "kworker1"
+    - "kworker2"
   register: containers_struct
 
 - name: Create Groups of nodes
