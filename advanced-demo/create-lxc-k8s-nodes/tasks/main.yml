@@ -16,6 +16,7 @@
   pip:
     name: lxc-python2
     state: present
+    executable: ~/.local/bin/pip3
 
 
 - name: Initalize lxd Daemon
