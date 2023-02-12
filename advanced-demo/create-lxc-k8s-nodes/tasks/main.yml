@@ -16,7 +16,7 @@
   pip:
     name: "{{ item }}"
     with_items:
-      - lxc-python2
+      - "lxc-python2"
     run_once: true
 
 
