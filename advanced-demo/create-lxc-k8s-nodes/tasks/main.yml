@@ -1,0 +1,80 @@
+---
+# This role contains tasks to provision lxc containers for installing k8s cluster on Ubuntu Host
+
+- name: Install lxd
+    community.general.snap:
+      name:
+        - lxd
+
+- name: Install lxc
+  apt: name={{ item }} state=present
+  with_items:
+    - lxc
+    - lxc-dev
+    - python-pip
+
+- name: Install lxc-python2 Package
+  pip:
+    name: "{{ item }}"
+    with_items:
+      - lxc-python2
+    run_once: true
+
+
+- name: Initalize lxd Daemon
+  command: lxd init --auto --storage-backend=dir
+
+- name: Create lxc k8s profile
+  command: lxc profile create k8s
+
+- name: Copy k8s profile file
+  copy:
+    src: k8s-config-profile.yaml
+    dest: /tmp/k8s-config-profile.yaml
+    mode: 0777
+
+
+- name: Inject file into profile
+  command: cat /tmp/k8s-config-profile.yaml | lxc profile edit k8s
+
+- name: Create lxc Containers
+  lxc_container:
+    name: {{ item }}
+    config: /tmp/k8s-config-profile.yaml
+    container_config:
+    state: started
+    template: ubuntu:22.04
+  loop:
+    - kmaster
+    - kworker1
+    - kworker2
+   register: containers_struct
+
+- name: Create Groups of nodes
+  group_by:
+    key: {{ item }}
+  loop:
+    - masters
+    - workers
+
+
+- name: Add worker containers nodes to in-memory inventory groups workers
+  add_host:
+    name: {{ item }}
+    groups: workers
+  loop:
+    - kworker1
+    - kworker2
+
+- name: Add master containers nodes to in-memory inventory groups masters
+  add_host:
+    name: {{ item }}
+    groups: masters
+  loop:
+    - kmaster
+
+
+
+
+
+
