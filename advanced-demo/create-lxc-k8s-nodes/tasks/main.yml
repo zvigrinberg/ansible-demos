@@ -33,15 +33,9 @@
     dest: /tmp/k8s-config-profile.yaml
     mode: 0777
 
-
-- name: Inject file into profile
-  command:
-    cmd: lxc profile edit k8s < /tmp/k8s-config-profile.yaml
-
-
-
-
-
+#- name: Inject file into profile
+#  command:
+#    cmd: lxc profile edit k8s < /tmp/k8s-config-profile.yaml
 
 - name: Create lxc Containers
   lxc_container:
