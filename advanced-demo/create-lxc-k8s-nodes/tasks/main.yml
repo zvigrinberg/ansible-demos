@@ -2,9 +2,8 @@
 # This role contains tasks to provision lxc containers for installing k8s cluster on Ubuntu Host
 
 - name: Install lxd
-    community.general.snap:
-      name:
-        - lxd
+  community.general.snap:
+    name: lxd
 
 - name: Install lxc
   apt: name={{ item }} state=present

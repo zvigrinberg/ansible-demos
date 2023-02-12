@@ -67,7 +67,7 @@ Verify that following port are opened
    76  kubeadm init --ignore-preflight-errors=all --v=5
 
 # Join command on workers:
-kubeadm join 10.251.109.206:6443 --token xxxxxxxxxxxxxxx --discovery-token-ca-cert-hash xxxxxxxxxxxxxxxxxxxxxxxxxx --ignore-preflight-errors=all --v=5
+kubeadm join 10.251.109.206:6443 --token c0h5fs.z6fgr9h8h2kn30j8 --discovery-token-ca-cert-hash sha256:42095eee9ff9455a6c3133b77cf494a4c0a80bb6dda0c04996c6227d9daac3e2 --ignore-preflight-errors=all --v=5
 
    77  systemctl status kubelet
    78  journalctl -u kubelet
