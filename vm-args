@@ -1,0 +1,7 @@
+IGNITION_CONFIG="/path/to/example.ign"
+IMAGE="/path/to/image.qcow2"
+VM_NAME="coreos-01"
+VCPUS="2"
+RAM_MB="2048"
+STREAM="stable"
+DISK_GB="10"
