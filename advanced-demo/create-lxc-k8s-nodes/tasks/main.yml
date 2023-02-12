@@ -43,7 +43,8 @@
     config: /tmp/k8s-config-profile.yaml
     container_config:
     state: started
-    template: ubuntu:22.04
+    template: ubuntu
+    template_options: --release jammy
     container_log: true
     container_log_level: DEBUG
 
