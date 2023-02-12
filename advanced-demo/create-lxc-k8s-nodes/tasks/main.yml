@@ -14,10 +14,8 @@
 
 - name: Install lxc-python2 Package
   pip:
-    name: "{{ item }}"
-    with_items:
-      - "lxc-python2"
-    run_once: true
+    name: lxc-python2
+    state: present
 
 
 - name: Initalize lxd Daemon
