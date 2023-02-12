@@ -51,26 +51,26 @@
 
 - name: Create Groups of nodes
   group_by:
-    key: {{ item }}
+    key: "{{ item }}"
   loop:
-    - masters
-    - workers
+    - "masters"
+    - "workers"
 
 
 - name: Add worker containers nodes to in-memory inventory groups workers
   add_host:
-    name: {{ item }}
+    name: "{{ item }}"
     groups: workers
   loop:
-    - kworker1
-    - kworker2
+    - "kworker1"
+    - "kworker2"
 
 - name: Add master containers nodes to in-memory inventory groups masters
   add_host:
-    name: {{ item }}
+    name: "{{ item }}"
     groups: masters
   loop:
-    - kmaster
+    - "kmaster"
 
 
 
