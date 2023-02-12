@@ -44,6 +44,9 @@
     container_config:
     state: started
     template: ubuntu:22.04
+    container_log: true
+    container_log_level: DEBUG
+
   loop:
     - "kmaster"
     - "kworker1"
