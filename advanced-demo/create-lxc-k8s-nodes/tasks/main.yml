@@ -13,7 +13,7 @@
     - python-pip
 
 - name: Install lxc-python2 Package
-  pip:
+  ansible.builtin.pip:
     name: lxc-python2
     state: present
     executable: /home/zgrinber/.local/bin/pip3
