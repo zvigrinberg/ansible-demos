@@ -38,7 +38,7 @@
 
 - name: Create lxc Containers
   lxc_container:
-    name: {{ item }}
+    name: "{{ item }}"
     config: /tmp/k8s-config-profile.yaml
     container_config:
     state: started
