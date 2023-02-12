@@ -10,20 +10,22 @@
   with_items:
     - lxc
     - lxc-dev
-    - python-pip
+    - python3-pip
 
 - name: Install lxc-python2 Package
   ansible.builtin.pip:
-    name: lxc-python2
+    name: lxc
     state: present
     executable: /home/zgrinber/.local/bin/pip3
 
 
 - name: Initalize lxd Daemon
   command: lxd init --auto --storage-backend=dir
+  ignore_errors: true  
 
 - name: Create lxc k8s profile
   command: lxc profile create k8s
+  ignore_errors: true  
 
 - name: Copy k8s profile file
   copy:
