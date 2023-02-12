@@ -47,7 +47,7 @@
     - kmaster
     - kworker1
     - kworker2
-   register: containers_struct
+  register: containers_struct
 
 - name: Create Groups of nodes
   group_by:
