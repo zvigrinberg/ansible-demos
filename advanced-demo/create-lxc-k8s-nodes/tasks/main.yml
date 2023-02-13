@@ -24,7 +24,7 @@
   ignore_errors: true  
 
 - name: Create lxc k8s profile
-  command: lxc profile create k8s
+  command: lxc profile create k8s -q
   ignore_errors: true  
 
 - name: Copy k8s profile file
@@ -33,26 +33,33 @@
     dest: /tmp/k8s-config-profile.yaml
     mode: 0777
 
-#- name: Inject file into profile
-#  command:
-#    cmd: lxc profile edit k8s < /tmp/k8s-config-profile.yaml
+- name: Inject file into profile
+  command:
+    cmd: lxc profile edit k8s < /tmp/k8s-config-profile.yaml
 
 - name: Create lxc Containers
-  lxc_container:
+  lxd_container:
     name: "{{ item }}"
-    config: /tmp/k8s-config-profile.yaml
-    container_config:
     state: started
-    template: ubuntu
-    template_options: --release jammy
-    container_log: true
-    container_log_level: DEBUG
+    source:
+      type: image
+      mode: pull
+      server: https://images.linuxcontainers.org
+      protocol: lxd
+      alias: ubuntu/jammy/amd64
+    profiles: ["k8s"]
+    wait_for_ipv4_addresses: true
 
   loop:
     - "kmaster"
     - "kworker1"
     - "kworker2"
   register: containers_struct
+
+- name: Debug containers Struct
+  debug:
+    var: containers_struct
+    msg: {{ containers_struct }}
 
 - name: Create Groups of nodes
   group_by:
