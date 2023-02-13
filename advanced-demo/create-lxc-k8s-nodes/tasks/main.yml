@@ -35,7 +35,9 @@
 
 - name: Inject file into profile
   command:
-    cmd: lxc profile edit k8s < /tmp/k8s-config-profile.yaml
+    cmd: lxc profile edit k8s
+    stdin:
+      - cat /tmp/k8s-config-profile.yaml
 
 - name: Create lxc Containers
   lxd_container:
