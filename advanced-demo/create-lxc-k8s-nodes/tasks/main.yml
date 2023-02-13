@@ -79,11 +79,11 @@
 
 - name: Add master containers nodes to in-memory inventory groups masters
   add_host:
-    name: "{{ item }}"
-    ansible_host: "{{ addresses.eth0[0] }}"
+    name: "{{ item.item }}"
+    ansible_host: "{{ item.addresses.eth0[0] }}"
     groups: masters
 #  when: '"master" in item'
-  loop: "{{ containers_struct.results }}"
+  with_items:  containers_struct.results
 
 
 
