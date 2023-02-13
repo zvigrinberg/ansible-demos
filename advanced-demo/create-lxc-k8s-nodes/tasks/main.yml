@@ -45,8 +45,7 @@
       - profile
       - edit
       - k8s
-      - <
-      - /tmp/k8s-config-profile.yaml
+      - "< /tmp/k8s-config-profile.yaml"
 
 - name: Create lxc Containers
   lxd_container:
