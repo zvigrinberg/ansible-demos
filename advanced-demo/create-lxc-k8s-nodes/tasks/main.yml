@@ -59,7 +59,7 @@
 - name: Debug containers Struct
   debug:
     var: containers_struct
-    msg: {{ containers_struct }}
+    msg: "{{ containers_struct }}"
 
 - name: Create Groups of nodes
   group_by:
