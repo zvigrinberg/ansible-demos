@@ -74,7 +74,7 @@
 #    ansible_host: "{{ item.addresses.eth0[0] }}"
     groups: workers
 #  when: '"worker" in item'
-  with_items:  containers_struct.results
+  loop:  "{{ containers_struct.results}}"
 
 
 - name: Add master containers nodes to in-memory inventory groups masters
@@ -83,7 +83,7 @@
 #    ansible_host: "{{ item.addresses.eth0[0] }}"
     groups: masters
 #  when: '"master" in item'
-  with_items:  containers_struct.results
+  loop:  "{{ containers_struct.results}}"
 
 
 
