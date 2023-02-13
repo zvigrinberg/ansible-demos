@@ -70,8 +70,8 @@
 
 - name: Add worker containers nodes to in-memory inventory groups workers
   add_host:
-    name: "{{ item}}"
-    ansible_host: "{{ item.addresses.eth0[0] }}"
+    name: "{{ item }}"
+#    ansible_host: "{{ item.addresses.eth0[0] }}"
     groups: workers
 #  when: '"worker" in item'
   with_items:  containers_struct.results
@@ -80,7 +80,7 @@
 - name: Add master containers nodes to in-memory inventory groups masters
   add_host:
     name: "{{ item }}"
-    ansible_host: "{{ item.addresses.eth0[0] }}"
+#    ansible_host: "{{ item.addresses.eth0[0] }}"
     groups: masters
 #  when: '"master" in item'
   with_items:  containers_struct.results
