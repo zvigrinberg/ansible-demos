@@ -1,0 +1,93 @@
+---
+# This role contains tasks to provision lxc containers for installing k8s cluster on Ubuntu Host
+
+- name: Install lxd
+  community.general.snap:
+    name: lxd
+
+- name: Install lxc
+  apt: name={{ item }} state=present
+  with_items:
+    - lxc
+    - lxc-dev
+    - python3-pip
+
+- name: Install lxc-python2 Package
+  ansible.builtin.pip:
+    name: lxc
+    state: present
+    executable: /home/zgrinber/.local/bin/pip3
+
+
+- name: Initalize lxd Daemon
+  command: lxd init --auto --storage-backend=dir
+  ignore_errors: true  
+
+- name: Create lxc k8s profile
+  command: lxc profile create k8s -q
+  ignore_errors: true  
+
+- name: Copy k8s profile file
+  copy:
+    src: k8s-config-profile.yaml
+    dest: /tmp/k8s-config-profile.yaml
+    mode: 0777
+
+- name: Inject file into profile
+  shell:
+    cmd: lxc profile edit k8s < /tmp/k8s-config-profile.yaml
+
+- name: Create lxc Containers
+  lxd_container:
+    name: "{{ item }}"
+    state: started
+    source:
+      type: image
+      mode: pull
+      server: https://images.linuxcontainers.org
+      protocol: simplestreams
+      alias: ubuntu/jammy/amd64
+    profiles: ["k8s"]
+    wait_for_ipv4_addresses: true
+
+  loop:
+    - "kmaster"
+    - "kworker1"
+    - "kworker2"
+  register: containers_struct
+
+- name: Debug containers Struct
+  debug:
+    msg: "{{ containers_struct.results}}"
+
+- name: Create Groups of nodes
+  group_by:
+    key: "{{ item }}"
+  loop:
+    - "masters"
+    - "workers"
+
+
+- name: Add worker containers nodes to in-memory inventory groups workers
+  add_host:
+    name: "{{item.item}}"
+    ansible_host: "{{ item.addresses.eth0[0]}}"
+    groups: workers
+  when: '"worker" in item.item'
+  loop:  "{{containers_struct.results}}"
+
+- name: Add master containers nodes to in-memory inventory groups masters
+  add_host:
+    name: "{{item.item}}"
+    ansible_host: "{{ item.addresses.eth0[0]}}"
+    groups: masters
+  when: '"master" in item.item'
+  loop:  "{{containers_struct.results}}"
+
+
+
+
+
+
+
+
