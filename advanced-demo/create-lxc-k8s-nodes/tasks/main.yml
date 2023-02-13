@@ -41,7 +41,12 @@
 - name: Inject file into profile
   command:
     cmd: lxc profile edit k8s
-    stdin: "{{ k8s_profile }}"
+    argv:
+      - lxc
+      - profile
+      - edit
+      - k8s
+    stdin: {{ k8s_profile }}
 
 
 - name: Create lxc Containers
