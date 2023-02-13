@@ -33,19 +33,9 @@
     dest: /tmp/k8s-config-profile.yaml
     mode: 0777
 
-- name: Save profile content to variable
-  command: cat /tmp/k8s-config-profile.yaml
-  register: k8s_profile
-
-
 - name: Inject file into profile
-  command:
-    argv:
-      - lxc
-      - profile
-      - edit
-      - k8s
-      - "< /tmp/k8s-config-profile.yaml"
+  shell:
+    cmd: lxc profile edit k8s < /tmp/k8s-config-profile.yaml
 
 - name: Create lxc Containers
   lxd_container:
