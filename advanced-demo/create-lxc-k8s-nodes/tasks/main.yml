@@ -52,7 +52,7 @@
       type: image
       mode: pull
       server: https://images.linuxcontainers.org
-      protocol: lxd
+      protocol: simplestreams
       alias: ubuntu/jammy/amd64
     profiles: ["k8s"]
     wait_for_ipv4_addresses: true
