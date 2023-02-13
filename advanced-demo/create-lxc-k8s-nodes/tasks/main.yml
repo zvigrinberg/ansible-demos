@@ -73,7 +73,7 @@
     name: "{{ item }}"
     ansible_host: "{{ addresses.eth0[0] }}"
     groups: workers
-  when: '"worker" in item'
+#  when: '"worker" in item'
   loop: "{{ containers_struct.results }}"
 
 
@@ -82,7 +82,7 @@
     name: "{{ item }}"
     ansible_host: "{{ addresses.eth0[0] }}"
     groups: masters
-  when: '"master" in item'
+#  when: '"master" in item'
   loop: "{{ containers_struct.results }}"
 
 
