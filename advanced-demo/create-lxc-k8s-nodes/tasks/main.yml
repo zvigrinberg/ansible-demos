@@ -35,13 +35,13 @@
 
 - name: Save profile content to variable
   command: cat /tmp/k8s-config-profile.yaml
-  register: k8s-profile
+  register: k8s_profile
 
 
 - name: Inject file into profile
   command:
     cmd: lxc profile edit k8s
-    stdin: "{{ k8s-profile }}"
+    stdin: "{{ k8s_profile }}"
 
 
 - name: Create lxc Containers
