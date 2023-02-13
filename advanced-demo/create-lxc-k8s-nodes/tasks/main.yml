@@ -58,7 +58,7 @@
 
 - name: Debug containers Struct
   debug:
-    msg: "{{ containers_struct.results[0].addresses.eth0[0]}}"
+    msg: "{{ containers_struct.results}}"
 
 - name: Create Groups of nodes
   group_by:
