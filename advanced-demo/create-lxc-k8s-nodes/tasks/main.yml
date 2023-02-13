@@ -58,7 +58,7 @@
 
 - name: Debug containers Struct
   debug:
-    msg: "{{ containers_struct }}"
+    msg: "{{ containers_struct.results[0].addresses.eth0[0]}}"
 
 - name: Create Groups of nodes
   group_by:
@@ -71,17 +71,20 @@
 - name: Add worker containers nodes to in-memory inventory groups workers
   add_host:
     name: "{{ item }}"
+    ansible_host: "{{ addresses.eth0[0] }}"
     groups: workers
-  loop:
-    - "kworker1"
-    - "kworker2"
+  when: '"worker" in item'
+  loop: "{{ containers_struct.results }}"
+
 
 - name: Add master containers nodes to in-memory inventory groups masters
   add_host:
     name: "{{ item }}"
+    ansible_host: "{{ addresses.eth0[0] }}"
     groups: masters
-  loop:
-    - "kmaster"
+  when: '"master" in item'
+  loop: "{{ containers_struct.results }}"
+
 
 
 
