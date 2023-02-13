@@ -34,7 +34,7 @@
     mode: 0777
 
 - name: Save profile content to variable
-  command: cat cat /tmp/k8s-config-profile.yaml
+  command: cat /tmp/k8s-config-profile.yaml
   register: k8s-profile
 
 
