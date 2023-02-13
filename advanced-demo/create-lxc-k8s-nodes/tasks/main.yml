@@ -54,9 +54,6 @@
     - "kmaster"
     - "kworker1"
     - "kworker2"
-  loop_control:
-    - label: "{{ item.name }}"
-    - label: "{{ item.add}}"
   register: containers_struct
 
 - name: Debug containers Struct
