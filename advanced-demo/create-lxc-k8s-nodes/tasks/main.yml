@@ -40,7 +40,6 @@
 
 - name: Inject file into profile
   command:
-    cmd: lxc profile edit k8s
     argv:
       - lxc
       - profile
