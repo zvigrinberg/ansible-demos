@@ -46,7 +46,7 @@
       - profile
       - edit
       - k8s
-    stdin: {{ k8s_profile }}
+    stdin: "{{ k8s_profile }}"
 
 
 - name: Create lxc Containers
