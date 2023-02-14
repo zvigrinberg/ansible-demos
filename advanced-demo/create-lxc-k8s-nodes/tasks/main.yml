@@ -84,7 +84,7 @@
   add_host:
     name: "{{item.item}}"
     ansible_host: "{{ item.addresses.eth0[0]}}"
-
+    ansible_user: root
     groups: masters
   when: '"master" in item.item'
   loop:  "{{containers_struct.results}}"
