@@ -1,20 +1,9 @@
 ---
 # tasks file for install-k8s
 
-- name: Listen on ports
-  shell: |
-    nc -l 127.0.0.1 {{ item }} &
-  register: result
-  loop:
-    - 6443
-    - 2379
-    - 2380
-    - 10250
-    - 10259
-    - 10257
-
 - name: Verify that all needed ports are opened
   shell: |
+    nc -l 127.0.0.1 {{ item }} & \
     nc -zv 127.0.0.1 {{ item }}
   register: result
   loop:
