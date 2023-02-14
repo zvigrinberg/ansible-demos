@@ -31,14 +31,14 @@
 
 
 - name: Copy k8s profile file
-  copy:
-    src: k8s-config-profile.yaml
+  template:
+    src: k8s-config-profile.j2
     dest: /tmp/k8s-config-profile.yaml
     mode: 0777
 
 - name: Inject file into profile
   shell:
-    cmd: lxc profile edit k8s < /tmp/k8s-config-profile.yaml
+    cmd: lxc profile edit k8s < /tmp/k8s-config-profile.j2
 
 - name: Create lxc Containers
   lxd_container:
