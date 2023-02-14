@@ -87,19 +87,23 @@
   when: '"master" in item.item'
   loop:  "{{containers_struct.results}}"
 
-#- name: Check python is installed in container
-#    delegate_to: mycontainer
-#    ansible.builtin.raw: dpkg -s python
-#
-#    register: python_install_check
-#    failed_when: python_install_check.rc not in [0, 1]
-#    changed_when: false
-#
-#- name: Install python in container
-#  delegate_to:
-#  ansible.builtin.raw: apt-get install -y python
-#  when: python_install_check.rc == 1
+- name: Check python3 is installed in containers
+  delegate_to: "{{item}}"
+  ansible.builtin.raw: dpkg -s python3
+  failed_when: python_install_check.rc not in [0, 1]
+  register: python_install_check
+  loop:
+    - "kmaster"
+    - "kworker1"
+    - "kworker2"
 
+#    changed_when: false
+
+- name: Install python in container
+  delegate_to: "{{item.item}}"
+  ansible.builtin.raw: apt-get install -y python3
+  when: item.rc == 1
+  loop:  "{{python_install_check.results}}"
 
 
 
