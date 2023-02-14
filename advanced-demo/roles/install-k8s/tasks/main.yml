@@ -1,0 +1,23 @@
+---
+# tasks file for install-k8s
+
+- name: Verify that all needed ports are opened
+  shell:
+    chdir: /tmp
+    cmd: |
+     nc -l 127.0.0.1 {{ item }} &
+     nc 127.0.0.1 {{ item }} -zv
+     export SERVER_PID=$(echo $!)
+     kill -9 $SERVER_PID
+  register: result
+  failed_when: result.rc not in [ 0, 1 ]
+  loop:
+    - 6443
+    - 2379
+    - 2380
+    - 10250
+    - 10259
+    - 10257
+
+
+
