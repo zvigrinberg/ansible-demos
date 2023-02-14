@@ -1,5 +1,5 @@
 ---
-# This role contains tasks to provision lxc containers for installing k8s cluster on Ubuntu Host
+# This role contains tasks to provision lxc containers for installing k8s cluster on Ubuntu Hosts
 
 - name: Install lxd
   community.general.snap:
@@ -21,11 +21,14 @@
 
 - name: Initalize lxd Daemon
   command: lxd init --auto --storage-backend=dir
-  ignore_errors: true  
+  register: the_result
+  failed_when: the_result.rc not in [0, 1]
 
 - name: Create lxc k8s profile
   command: lxc profile create k8s -q
-  ignore_errors: true  
+  register: the_result
+  failed_when: the_result.rc not in [0, 1]
+
 
 - name: Copy k8s profile file
   copy:
@@ -83,6 +86,19 @@
     groups: masters
   when: '"master" in item.item'
   loop:  "{{containers_struct.results}}"
+
+#- name: Check python is installed in container
+#    delegate_to: mycontainer
+#    ansible.builtin.raw: dpkg -s python
+#
+#    register: python_install_check
+#    failed_when: python_install_check.rc not in [0, 1]
+#    changed_when: false
+#
+#- name: Install python in container
+#  delegate_to:
+#  ansible.builtin.raw: apt-get install -y python
+#  when: python_install_check.rc == 1
 
 
 
