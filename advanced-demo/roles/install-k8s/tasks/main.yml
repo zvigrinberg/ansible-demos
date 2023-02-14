@@ -4,6 +4,7 @@
 - name: Verify that all needed ports are opened
   shell: |
     nc -l 127.0.0.1 {{ item }} & \
+    sleep 0.05
     nc -zv 127.0.0.1 {{ item }}
   register: result
   loop:
