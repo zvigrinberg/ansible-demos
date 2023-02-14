@@ -3,7 +3,7 @@
 
 - name: Verify that all needed ports are opened
   shell: |
-    nc -l 127.0.0.1 {{ item }} &
+    nc -l 127.0.0.1 {{ item }} & \
     export SERVER_PID=$(echo $!)
     nc -zv 127.0.0.1 {{ item }}
     kill -9 '$SERVER_PID'
