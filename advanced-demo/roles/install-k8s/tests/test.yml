@@ -2,4 +2,4 @@
 - hosts: all
   remote_user: root
   roles:
-    - install-k8s
+    - ~/ansible-demos/advanced-demo/roles/install-k8s
