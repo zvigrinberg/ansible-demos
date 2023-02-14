@@ -1,2 +1,4 @@
 ---
 # defaults file for create-lxc-k8s-nodes
+# For getting the ssh public key
+user_ssh_public_key: zgrinber
