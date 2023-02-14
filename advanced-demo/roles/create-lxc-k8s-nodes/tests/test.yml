@@ -1,0 +1,6 @@
+---
+- hosts: localhost
+  become: true
+  remote_user: root
+  roles:
+    - ~/ansible-demos/advanced-demo/roles/create-lxc-k8s-nodes

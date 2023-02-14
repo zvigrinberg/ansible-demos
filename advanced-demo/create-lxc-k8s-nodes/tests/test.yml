@@ -1,6 +1,0 @@
----
-- hosts: localhost
-  become: true
-  remote_user: root
-  roles:
-    - /home/zgrinber/ansible-demos/advanced-demo/create-lxc-k8s-nodes

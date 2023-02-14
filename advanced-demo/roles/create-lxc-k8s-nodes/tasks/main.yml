@@ -1,5 +1,5 @@
 ---
-# This role contains tasks to provision lxc containers for installing k8s cluster on Ubuntu Host
+# This role contains tasks to provision lxc containers for installing k8s cluster on Ubuntu Hosts
 
 - name: Install lxd
   community.general.snap:
@@ -21,15 +21,18 @@
 
 - name: Initalize lxd Daemon
   command: lxd init --auto --storage-backend=dir
-  ignore_errors: true  
+  register: the_result
+  failed_when: the_result.rc not in [0, 1]
 
 - name: Create lxc k8s profile
   command: lxc profile create k8s -q
-  ignore_errors: true  
+  register: the_result
+  failed_when: the_result.rc not in [0, 1]
+
 
 - name: Copy k8s profile file
-  copy:
-    src: k8s-config-profile.yaml
+  template:
+    src: k8s-config-profile.j2
     dest: /tmp/k8s-config-profile.yaml
     mode: 0777
 
@@ -72,6 +75,7 @@
   add_host:
     name: "{{item.item}}"
     ansible_host: "{{ item.addresses.eth0[0]}}"
+    ansible_user: root
     groups: workers
   when: '"worker" in item.item'
   loop:  "{{containers_struct.results}}"
@@ -80,14 +84,53 @@
   add_host:
     name: "{{item.item}}"
     ansible_host: "{{ item.addresses.eth0[0]}}"
+    ansible_user: root
     groups: masters
   when: '"master" in item.item'
   loop:  "{{containers_struct.results}}"
 
+- name: Install Openssh Server on all containers
+  shell:
+    cmd: lxc exec {{ item }} -- bash -c "apt install openssh-server"
+  loop:
+    - "kmaster"
+    - "kworker1"
+    - "kworker2"
 
+- name: Upload public key from host VM to authorized_keys of all containers
+  become: true
+  become_user: "{{ user_ssh_public_key }}"
+  shell:
+    cmd: cat ~/.ssh/id_rsa.pub | lxc exec {{ item }} -- bash -c  "mkdir -p ~/.ssh && touch ~/.ssh/authorized_keys && chmod -R go= ~/.ssh && cat >> ~/.ssh/authorized_keys"
+  loop:
+    - "kmaster"
+    - "kworker1"
+    - "kworker2"
 
+- name: Disable Password authentication for SSH on all containers and restart SSH daemon
+  shell:
+    cmd: lxc exec {{ item }} -- bash -c "sed -i 's/#PasswordAuthentication yes/PasswordAuthentication no/g' /etc/ssh/sshd_config ; systemctl restart ssh"
+  loop:
+    - "kmaster"
+    - "kworker1"
+    - "kworker2"
 
+- name: Check python3 is installed in containers
+  delegate_to: "{{item}}"
+  ansible.builtin.raw: dpkg -s python3
+  remote_user: root
+  failed_when: python_install_check.rc not in [0, 1]
+  register: python_install_check
+  loop:
+    - "kmaster"
+    - "kworker1"
+    - "kworker2"
 
+#    changed_when: false
 
-
-
+- name: Install python on all containers
+  delegate_to: "{{item.item}}"
+  remote_user: root
+  ansible.builtin.raw: apt-get install -y python3
+  when: item.rc == 1
+  loop:  "{{python_install_check.results}}"
