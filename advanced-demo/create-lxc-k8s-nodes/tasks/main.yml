@@ -75,6 +75,7 @@
   add_host:
     name: "{{item.item}}"
     ansible_host: "{{ item.addresses.eth0[0]}}"
+    ansible_user: root
     groups: workers
   when: '"worker" in item.item'
   loop:  "{{containers_struct.results}}"
@@ -117,6 +118,7 @@
 - name: Check python3 is installed in containers
   delegate_to: "{{item}}"
   ansible.builtin.raw: dpkg -s python3
+  remote_user: root
   failed_when: python_install_check.rc not in [0, 1]
   register: python_install_check
   loop:
@@ -128,6 +130,7 @@
 
 - name: Install python in container
   delegate_to: "{{item.item}}"
+  remote_user: root
   ansible.builtin.raw: apt-get install -y python3
   when: item.rc == 1
   loop:  "{{python_install_check.results}}"
