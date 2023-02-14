@@ -87,6 +87,30 @@
   when: '"master" in item.item'
   loop:  "{{containers_struct.results}}"
 
+- name: Install Openssh Server on all containers
+  shell:
+    cmd: lxc exec {{ item }} -- bash -c "apt install openssh-server"
+  loop:
+    - "kmaster"
+    - "kworker1"
+    - "kworker2"
+
+- name: Upload public key from host VM to authorized_keys of all containers
+  shell:
+    cmd: cat ~/.ssh/id_rsa.pub | lxc exec "{{ item }}" -- bash -c  "mkdir -p ~/.ssh && touch ~/.ssh/authorized_keys && chmod -R go= ~/.ssh && cat >> ~/.ssh/authorized_keys"
+  loop:
+    - "kmaster"
+    - "kworker1"
+    - "kworker2"
+
+- name: Disable Password authentication for SSH on all containers and restart SSH daemon
+  shell:
+    cmd: lxc exec kmaster -- bash -c "sed -i 's/#PasswordAuthentication yes/PasswordAuthentication no/g' /etc/ssh/sshd_config && systemctl restart ssh"
+  loop:
+    - "kmaster"
+    - "kworker1"
+    - "kworker2"
+
 - name: Check python3 is installed in containers
   delegate_to: "{{item}}"
   ansible.builtin.raw: dpkg -s python3
