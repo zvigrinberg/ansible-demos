@@ -6,7 +6,6 @@
     nc -l 127.0.0.1 {{ item }} & \
     nc -zv 127.0.0.1 {{ item }}
   register: result
-  failed_when: result.rc not in [ 0, 1 ]
   loop:
     - 6443
     - 2379
