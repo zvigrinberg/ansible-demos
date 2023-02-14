@@ -101,7 +101,6 @@
   become_user: {{ user_ssh_public_key }}
   shell:
     cmd: cat ~/.ssh/id_rsa.pub | lxc exec {{ item }} -- bash -c  "mkdir -p ~/.ssh && touch ~/.ssh/authorized_keys && chmod -R go= ~/.ssh && cat >> ~/.ssh/authorized_keys"
-  become
   loop:
     - "kmaster"
     - "kworker1"
