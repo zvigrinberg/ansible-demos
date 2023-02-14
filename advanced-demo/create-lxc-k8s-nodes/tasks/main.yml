@@ -128,16 +128,9 @@
 
 #    changed_when: false
 
-- name: Install python in container
+- name: Install python on all containers
   delegate_to: "{{item.item}}"
   remote_user: root
   ansible.builtin.raw: apt-get install -y python3
   when: item.rc == 1
   loop:  "{{python_install_check.results}}"
-
-
-
-
-
-
-
