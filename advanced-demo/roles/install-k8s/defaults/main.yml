@@ -4,3 +4,4 @@
 crio_os_version: xUbuntu_22.04
 crio_version: 1.26
 cilium_chart_version: 1.12.6
+leading_master: kmaster

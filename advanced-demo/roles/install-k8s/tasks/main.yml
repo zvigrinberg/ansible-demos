@@ -16,4 +16,126 @@
     - 10257
 
 
+- name: Installs curl if it doesn't installed
+  apt:
+    name: curl
+    state: present
+
+- name: Add cri-o apt repository to hosts
+  shell: |
+    echo "deb [signed-by=/usr/share/keyrings/libcontainers-archive-keyring.gpg] https://download.opensuse.org/repositories/devel:/kubic:/libcontainers:/stable/{{ crio_os_version }}/ /" > /etc/apt/sources.list.d/devel:kubic:libcontainers:stable.list
+    echo "deb [signed-by=/usr/share/keyrings/libcontainers-crio-archive-keyring.gpg] https://download.opensuse.org/repositories/devel:/kubic:/libcontainers:/stable:/cri-o:/{{ crio_version }}/{{ crio_os_version }}/ /" > /etc/apt/sources.list.d/devel:kubic:libcontainers:stable:cri-o:{{ crio_version }}.list
+
+- name: Download gpg keys for the cri-o repostiory and fetch repositories.
+  shell: |
+    mkdir -p /usr/share/keyrings
+    curl -L https://download.opensuse.org/repositories/devel:/kubic:/libcontainers:/stable/{{ crio_os_version }}/Release.key | gpg --dearmor -o /usr/share/keyrings/libcontainers-archive-keyring.gpg
+    curl -L https://download.opensuse.org/repositories/devel:/kubic:/libcontainers:/stable:/cri-o:/{{ crio_version }}/{{ crio_os_version }}/Release.key | gpg --dearmor -o /usr/share/keyrings/libcontainers-crio-archive-keyring.gpg
+    apt-get update
+
+- name: Install cri-o container runtime and its dependencies
+  apt:
+    package:
+      - cri-o
+      - cri-o-runc
+      - libbtrfs-dev
+      - containers-common
+      - git
+      - golang-go
+      - libassuan-dev
+      - libdevmapper-dev
+      - libglib2.0-dev
+      - libc6-dev
+      - libgpgme-dev
+      - libgpg-error-dev
+      - libseccomp-dev
+      - libsystemd-dev
+      - libselinux1-dev
+      - pkg-config
+      - go-md2man
+      - cri-o-runc
+      - libudev-dev
+      - software-properties-common
+      - gcc
+      - make
+    update_cache: true
+
+- name: Make sure systemd Is up to date with latest changes
+  systemd:
+    daemon_reload: true
+
+- name: Enable and start cri-o container runtime on all nodes
+  service:
+    name: crio
+    enabled: true
+    state: started
+
+- name: install https and certificates tools
+  apt:
+    package:
+      - apt-transport-https
+      - ca-certificates
+      - curl
+    state: present
+
+
+- name: Add kubernetes apt repository to hosts
+  shell: |
+    sudo curl -fsSLo /etc/apt/keyrings/kubernetes-archive-keyring.gpg https://packages.cloud.google.com/apt/doc/apt-key.gpg
+    echo "deb [signed-by=/etc/apt/keyrings/kubernetes-archive-keyring.gpg] https://apt.kubernetes.io/ kubernetes-xenial main" | sudo tee /etc/apt/sources.list.d/kubernetes.list
+
+
+- name: Install k8s components on nodes
+  apt:
+    pkg:
+      - kubelet
+      - kubeadm
+      - kubectl
+    update_cache: true
+
+
+- name: Hold k8s components on all nodes
+  dpkg_selections:
+    name: {{ item }}
+    selection: hold
+  loop:
+    - kubeadm
+    - kubelet
+    - kubectl
+
+- name: init cluster control-plane
+  shell: |
+  kubeadm init --ignore-preflight-errors=all --v=5
+  delegate_to: {{ leading_master }}
+
+- name: Extract join command for workers
+  command: kubeadm token create --print-join-command
+  register: join_command
+
+#- name: Add new master to control-plane
+#//todo
+
+- name: Join all workers to cluster
+  delegate_to: "{{ item }}"
+  command: "{{ join_command.stdout }} --ignore-preflight-errors=all --v=5"
+  with_items: "{{ groups['workers'] }}"
+
+- name: Copy systemd unit mount file for BPF to all nodes
+  copy:
+    src: sys-fs-bpf.mount
+    dest: /etc/systemd/system/sys-fs-bpf.mount
+    mode: "777"
+
+- name: Mount BPF device on all nodes.
+  mount:
+    state: mounted
+    fstype: bpf
+    src: bpffs
+    path: /sys/fs/bpf
+
+- name: Install Cilium for containers Networking and network policies
+
+#- name:
+
+
 

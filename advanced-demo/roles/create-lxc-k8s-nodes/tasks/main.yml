@@ -11,6 +11,7 @@
     - lxc
     - lxc-dev
     - python3-pip
+    - curl
 
 - name: Install lxc-python2 Package
   ansible.builtin.pip:
