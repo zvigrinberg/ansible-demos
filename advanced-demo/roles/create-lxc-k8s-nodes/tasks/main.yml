@@ -98,6 +98,20 @@
     - "kworker1"
     - "kworker2"
 
+- name: Checks whether ssh key pair exists
+  become: true
+  become_user: "{{ user_ssh_public_key }}"
+  stat:
+    path: ~/.ssh/id_rsa
+  register: ssh_key_pair
+
+- name: Generate ssh key pair if doesn't exists
+  become: true
+  become_user: "{{ user_ssh_public_key }}"
+  openssh_keypair:
+    path: ~/.ssh/id_rsa
+  when: not ssh_key_pair.stat.exists
+
 - name: Upload public key from host VM to authorized_keys of all containers
   become: true
   become_user: "{{ user_ssh_public_key }}"
