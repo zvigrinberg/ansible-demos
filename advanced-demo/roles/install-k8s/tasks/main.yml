@@ -105,7 +105,7 @@
 
 - name: init cluster control-plane
   shell: |
-  kubeadm init --ignore-preflight-errors=all --v=5
+    kubeadm init --ignore-preflight-errors=all --v=5
   delegate_to: "{{ leading_master }}"
 
 - name: Extract join command for workers
