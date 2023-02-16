@@ -133,9 +133,50 @@
     src: bpffs
     path: /sys/fs/bpf
 
+
+- name: Mount cgroupv2 on all hosts and make it shared
+  command: mount /run/cilium/cgroupv2 --make-shared
+
+- name: Restart Kubelet on all nodes
+  service:
+    name: kubelet
+    state: restarted
+
+
+- name: Install helm on master node
+  delegate_to: {{ leading_master }}
+  shell: |
+    curl -fsSL -o /tmp/get_helm.sh https://raw.githubusercontent.com/helm/helm/main/scripts/get-helm-3
+    chmod 700 /tmp/get_helm.sh
+    /tmp/get_helm.sh
+
+
+- name: Add cilium helm repo
+  delegate_to: {{ leading_master }}
+  helm_repository:
+    name: cilium
+    repo_url: https://helm.cilium.io/
+
+
 - name: Install Cilium for containers Networking and network policies
+  delegate_to: {{ leading_master }}
+  helm:
+    name: cilium
+    chart_ref: cilium/cilium
+    chart_version: {{ cilium_chart_version }}
+    namespace: kube-system
+    state: present
 
-#- name:
 
+- name: Copy manifest of metrics server to master
+  delegate_to: {{ leading_master }}
+  copy:
+    src: metrics-server.yaml
+    dest: /tmp/metrics-server.yaml
+    mode: "777"
 
-
+- name: Apply metrics-server manifest to the cluster.
+  delegate_to: {{ leading_master }}
+  k8s:
+    state: present
+    src: /tmp/metrics-server.yaml
