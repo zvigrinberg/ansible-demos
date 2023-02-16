@@ -125,9 +125,9 @@
 
 - name: Add all nodes with public key to ssh known_hosts file
   become: true
-  become_user: {{ user_ssh_public_key }}
+  become_user: "{{ user_ssh_public_key }}"
   known_hosts:
-    name: {{ item }}
+    name: "{{ item }}"
     key: "{{ item.addresses.eth0[0] }} {{ lookup('ansible.builtin.file', '~/.ssh/id_rsa') }}"
   loop:  "{{containers_struct.results}}"
 
