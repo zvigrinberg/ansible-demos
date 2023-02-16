@@ -111,6 +111,7 @@
   delegate_to: "{{ leading_master }}"
 
 - name: Extract join command for workers
+  delegate_to: "{{ leading_master }}"
   command: kubeadm token create --print-join-command
   register: join_command
 
