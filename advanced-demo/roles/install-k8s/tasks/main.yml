@@ -16,9 +16,11 @@
     - 10257
 
 
-- name: Installs curl if it doesn't installed
+- name: Installs curl and gpg if it doesn't installed
   apt:
-    name: curl
+    package:
+      - curl
+      - gpg
     state: present
 
 - name: Add cri-o apt repository to hosts
