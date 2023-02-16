@@ -176,11 +176,10 @@
     namespace: kube-system
     state: present
 
-- name: Mount cgroupv2 on all hosts and make it shared
-  command: mount /run/cilium/cgroupv2 --make-shared
-  retries: 3
-
-
+#- name: Mount cgroupv2 on all hosts and make it shared
+#  command: mount /run/cilium/cgroupv2 --make-shared
+#  retries: 3
+#
 - name: Restart Kubelet on all nodes
   service:
     name: kubelet
@@ -190,6 +189,7 @@
 
 - name: Copy manifest of metrics server to master
   delegate_to: "{{ leading_master }}"
+  run_once: true
   copy:
     src: metrics-server.yaml
     dest: /tmp/metrics-server.yaml
@@ -200,8 +200,8 @@
 - name: Apply metrics-server manifest to the cluster.
   delegate_to: "{{ leading_master }}"
   run_once: true
-  k8s:
+  kubernetes.core.k8s:
     state: present
     src: /tmp/metrics-server.yaml
   tags:
-    - debug
+    - tryout
