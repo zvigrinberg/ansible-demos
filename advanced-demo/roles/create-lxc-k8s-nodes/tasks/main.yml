@@ -128,7 +128,7 @@
   become_user: "{{ user_ssh_public_key }}"
   known_hosts:
     name: "{{ item.addresses.eth0[0] }}"
-    key: "{{ item.addresses.eth0[0] }} {{ lookup('ansible.builtin.file', '~/.ssh/id_rsa') }}"
+    key: ",{{ item.addresses.eth0[0] }} {{ lookup('ansible.builtin.file', '~/.ssh/id_rsa') }}"
   loop:  "{{containers_struct.results}}"
 
 - name: Upload public key from host VM to authorized_keys of all containers
