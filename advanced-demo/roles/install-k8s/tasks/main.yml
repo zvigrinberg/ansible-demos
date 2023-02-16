@@ -139,17 +139,14 @@
   run_once: true
   command: "{{ join_command.stdout }} --ignore-preflight-errors=all --v=5"
   with_items: "{{ groups['workers'] }}"
-  tags:
-    - debug
+
 
 - name: Copy systemd unit mount file for BPF to all nodes
   copy:
     src: sys-fs-bpf.mount
     dest: /etc/systemd/system/sys-fs-bpf.mount
     mode: "777"
-  tags:
-    - debug
-    -
+
 - name: Mount BPF device on all nodes.
   mount:
     state: mounted
@@ -159,17 +156,6 @@
   tags:
     - debug
 
-- name: Mount cgroupv2 on all hosts and make it shared
-  command: mount /run/cilium/cgroupv2 --make-shared
-  tags:
-    - debug
-    -
-- name: Restart Kubelet on all nodes
-  service:
-    name: kubelet
-    state: restarted
-  tags:
-    - debug
 
 - name: Install helm on master node
   delegate_to: "{{ leading_master }}"
@@ -199,6 +185,20 @@
   tags:
     - debug
 
+- name: Mount cgroupv2 on all hosts and make it shared
+  command: mount /run/cilium/cgroupv2 --make-shared
+  retries: 3
+  tags:
+    - debug
+
+
+- name: Restart Kubelet on all nodes
+  service:
+    name: kubelet
+    state: restarted
+  tags:
+    - debug
+
 - name: Copy manifest of metrics server to master
   delegate_to: "{{ leading_master }}"
   copy:
@@ -210,6 +210,7 @@
 
 - name: Apply metrics-server manifest to the cluster.
   delegate_to: "{{ leading_master }}"
+  run_once: true
   k8s:
     state: present
     src: /tmp/metrics-server.yaml
