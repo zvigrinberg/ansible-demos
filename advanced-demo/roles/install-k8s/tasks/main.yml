@@ -163,7 +163,7 @@
   helm:
     name: cilium
     chart_ref: cilium/cilium
-    chart_version: {{ cilium_chart_version }}
+    chart_version: "{{ cilium_chart_version }}"
     namespace: kube-system
     state: present
 
