@@ -60,6 +60,17 @@
     - "kworker2"
   register: containers_struct
 
+
+- name: Delete lxc Containers
+  lxd_container:
+    name: "{{ item }}"
+    state: absent
+  loop:
+    - "kmaster"
+    - "kworker1"
+    - "kworker2"
+  tags: never
+
 - name: Debug containers Struct
   debug:
     msg: "{{ containers_struct.results}}"
