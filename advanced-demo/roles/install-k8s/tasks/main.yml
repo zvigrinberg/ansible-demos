@@ -71,6 +71,8 @@
     name: crio
     enabled: true
     state: started
+  tags:
+    - debug
 
 - name: install https and certificates tools
   apt:
@@ -109,19 +111,23 @@
   shell: |
     kubeadm init --ignore-preflight-errors=all --v=5
   delegate_to: "{{ leading_master }}"
-
+  tags:
+    - debug
+    -
 - name: create kubeconfig file on master
   shell: |
     mkdir /root/.kube
     cp /etc/kubernetes/admin.conf /root/.kube/config
   delegate_to: "{{ leading_master }}"
-
+  tags:
+    - debug
 
 - name: Extract join command for workers
   delegate_to: "{{ leading_master }}"
   command: kubeadm token create --print-join-command
   register: join_command
-
+  tags:
+    - debug
 #- name: Add new master to control-plane
 #//todo
 
@@ -129,29 +135,36 @@
   delegate_to: "{{ item }}"
   command: "{{ join_command.stdout }} --ignore-preflight-errors=all --v=5"
   with_items: "{{ groups['workers'] }}"
-
+  tags:
+    - debug
 - name: Copy systemd unit mount file for BPF to all nodes
   copy:
     src: sys-fs-bpf.mount
     dest: /etc/systemd/system/sys-fs-bpf.mount
     mode: "777"
-
+  tags:
+    - debug
+    -
 - name: Mount BPF device on all nodes.
   mount:
     state: mounted
     fstype: bpf
     src: bpffs
     path: /sys/fs/bpf
-
+  tags:
+    - debug
 
 - name: Mount cgroupv2 on all hosts and make it shared
   command: mount /run/cilium/cgroupv2 --make-shared
-
+  tags:
+    - debug
+    -
 - name: Restart Kubelet on all nodes
   service:
     name: kubelet
     state: restarted
-
+  tags:
+    - debug
 
 - name: Install helm on master node
   delegate_to: "{{ leading_master }}"
@@ -159,14 +172,16 @@
     curl -fsSL -o /tmp/get_helm.sh https://raw.githubusercontent.com/helm/helm/main/scripts/get-helm-3
     chmod 700 /tmp/get_helm.sh
     /tmp/get_helm.sh
-
+  tags:
+    - debug
 
 - name: Add cilium helm repo
   delegate_to: "{{ leading_master }}"
   kubernetes.core.helm_repository:
     name: cilium
     repo_url: https://helm.cilium.io/
-
+  tags:
+    - debug
 
 - name: Install Cilium for containers Networking and network policies
   delegate_to: "{{ leading_master }}"
@@ -176,7 +191,8 @@
     chart_version: "{{ cilium_chart_version }}"
     namespace: kube-system
     state: present
-
+  tags:
+    - debug
 
 - name: Copy manifest of metrics server to master
   delegate_to: "{{ leading_master }}"
@@ -184,9 +200,13 @@
     src: metrics-server.yaml
     dest: /tmp/metrics-server.yaml
     mode: "777"
+  tags:
+    - debug
 
 - name: Apply metrics-server manifest to the cluster.
   delegate_to: "{{ leading_master }}"
   k8s:
     state: present
     src: /tmp/metrics-server.yaml
+  tags:
+    - debug
