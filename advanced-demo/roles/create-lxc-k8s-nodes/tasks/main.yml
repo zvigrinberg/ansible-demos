@@ -128,6 +128,7 @@
   become_user: "{{ user_ssh_public_key }}"
   known_hosts:
     name: "{{ item.addresses.eth0[0] }}"
+    hash_host: true
     key: ",{{ item.addresses.eth0[0] }} {{ lookup('ansible.builtin.file', '~/.ssh/id_rsa') }}"
   loop:  "{{containers_struct.results}}"
 
