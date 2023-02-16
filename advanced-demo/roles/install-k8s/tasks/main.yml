@@ -106,7 +106,7 @@
 - name: init cluster control-plane
   shell: |
   kubeadm init --ignore-preflight-errors=all --v=5
-  delegate_to: {{ leading_master }}
+  delegate_to: "{{ leading_master }}"
 
 - name: Extract join command for workers
   command: kubeadm token create --print-join-command
@@ -144,7 +144,7 @@
 
 
 - name: Install helm on master node
-  delegate_to: {{ leading_master }}
+  delegate_to: "{{ leading_master }}"
   shell: |
     curl -fsSL -o /tmp/get_helm.sh https://raw.githubusercontent.com/helm/helm/main/scripts/get-helm-3
     chmod 700 /tmp/get_helm.sh
@@ -152,14 +152,14 @@
 
 
 - name: Add cilium helm repo
-  delegate_to: {{ leading_master }}
+  delegate_to: "{{ leading_master }}"
   helm_repository:
     name: cilium
     repo_url: https://helm.cilium.io/
 
 
 - name: Install Cilium for containers Networking and network policies
-  delegate_to: {{ leading_master }}
+  delegate_to: "{{ leading_master }}"
   helm:
     name: cilium
     chart_ref: cilium/cilium
@@ -169,14 +169,14 @@
 
 
 - name: Copy manifest of metrics server to master
-  delegate_to: {{ leading_master }}
+  delegate_to: "{{ leading_master }}"
   copy:
     src: metrics-server.yaml
     dest: /tmp/metrics-server.yaml
     mode: "777"
 
 - name: Apply metrics-server manifest to the cluster.
-  delegate_to: {{ leading_master }}
+  delegate_to: "{{ leading_master }}"
   k8s:
     state: present
     src: /tmp/metrics-server.yaml
