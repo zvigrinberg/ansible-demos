@@ -159,16 +159,13 @@
     curl -fsSL -o /tmp/get_helm.sh https://raw.githubusercontent.com/helm/helm/main/scripts/get-helm-3
     chmod 700 /tmp/get_helm.sh
     /tmp/get_helm.sh
-  tags:
-    - debug
+
 
 - name: Add cilium helm repo
   delegate_to: "{{ leading_master }}"
   kubernetes.core.helm_repository:
     name: cilium
     repo_url: https://helm.cilium.io/
-  tags:
-    - debug
 
 - name: Install Cilium for containers Networking and network policies
   delegate_to: "{{ leading_master }}"
@@ -178,14 +175,10 @@
     chart_version: "{{ cilium_chart_version }}"
     namespace: kube-system
     state: present
-  tags:
-    - debug
 
 - name: Mount cgroupv2 on all hosts and make it shared
   command: mount /run/cilium/cgroupv2 --make-shared
   retries: 3
-  tags:
-    - debug
 
 
 - name: Restart Kubelet on all nodes
