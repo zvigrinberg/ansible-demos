@@ -160,7 +160,7 @@
 
 - name: Install Cilium for containers Networking and network policies
   delegate_to: "{{ leading_master }}"
-  helm:
+  kubernetes.core.helm:
     name: cilium
     chart_ref: cilium/cilium
     chart_version: "{{ cilium_chart_version }}"
