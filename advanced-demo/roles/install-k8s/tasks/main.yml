@@ -153,7 +153,7 @@
 
 - name: Add cilium helm repo
   delegate_to: "{{ leading_master }}"
-  helm_repository:
+  kubernetes.core.helm_repository:
     name: cilium
     repo_url: https://helm.cilium.io/
 
