@@ -106,7 +106,7 @@
   shell:
     cmd: lxc exec {{ item }} -- bash -c "apt-get -y install openssh-server"
   loop:
-    - "kmaster"lx
+    - "kmaster"
     - "kworker1"
     - "kworker2"
 
