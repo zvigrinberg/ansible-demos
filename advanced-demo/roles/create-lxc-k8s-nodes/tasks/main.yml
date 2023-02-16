@@ -149,7 +149,7 @@
   become_user: "{{ user_ssh_public_key }}"
   known_hosts:
     name: "{{ item.addresses.eth0[0] }}"
-    hash_host: true
+    hash_host: false
     key: "{{ lookup('file', '~/.ssh/id_rsa.pub') }} {{ item.addresses.eth0[0] }}"
   loop:  "{{containers_struct.results}}"
 
