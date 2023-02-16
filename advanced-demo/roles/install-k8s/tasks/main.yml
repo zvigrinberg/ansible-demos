@@ -111,6 +111,7 @@
   shell: |
     kubeadm init --ignore-preflight-errors=all --v=5
   delegate_to: "{{ leading_master }}"
+  run_once: true
   tags:
     - debug
     -
@@ -119,11 +120,13 @@
     mkdir /root/.kube
     cp /etc/kubernetes/admin.conf /root/.kube/config
   delegate_to: "{{ leading_master }}"
+  run_once: true
   tags:
     - debug
 
 - name: Extract join command for workers
   delegate_to: "{{ leading_master }}"
+  run_once: true
   command: kubeadm token create --print-join-command
   register: join_command
   tags:
@@ -133,10 +136,12 @@
 
 - name: Join all workers to cluster
   delegate_to: "{{ item }}"
+  run_once: true
   command: "{{ join_command.stdout }} --ignore-preflight-errors=all --v=5"
   with_items: "{{ groups['workers'] }}"
   tags:
     - debug
+
 - name: Copy systemd unit mount file for BPF to all nodes
   copy:
     src: sys-fs-bpf.mount

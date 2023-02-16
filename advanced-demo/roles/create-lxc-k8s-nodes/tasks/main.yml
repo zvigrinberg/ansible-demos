@@ -101,6 +101,7 @@
   when: '"master" in item.item'
   loop:  "{{containers_struct.results}}"
 
+# Remove never tag if openssh is not present in the container image
 - name: Install Openssh Server on all containers
   shell:
     cmd: lxc exec {{ item }} -- bash -c "apt install openssh-server"
@@ -108,6 +109,14 @@
     - "kmaster"
     - "kworker1"
     - "kworker2"
+  tags: never
+
+#- name: Make sure that ssh service is up and running on all nodes
+#  service:
+#    name: ssh
+#    enabled: true
+#    state: started
+
 
 - name: Checks whether ssh key pair exists
   become: true
