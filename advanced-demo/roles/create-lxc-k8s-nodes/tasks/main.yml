@@ -150,7 +150,7 @@
   known_hosts:
     name: "{{ item.addresses.eth0[0] }}"
     hash_host: false
-    key: "{{ lookup('file', '~/.ssh/id_rsa.pub') }} {{ item.addresses.eth0[0] }}"
+    key: " {{ item.addresses.eth0[0] }} {{ lookup('file', '~/.ssh/id_rsa.pub') }}"
   loop:  "{{containers_struct.results}}"
 
 
