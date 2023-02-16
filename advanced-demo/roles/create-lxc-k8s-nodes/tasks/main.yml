@@ -109,7 +109,6 @@
     - "kmaster"
     - "kworker1"
     - "kworker2"
-  tags: never
 
 #- name: Make sure that ssh service is up and running on all nodes
 #  service:
