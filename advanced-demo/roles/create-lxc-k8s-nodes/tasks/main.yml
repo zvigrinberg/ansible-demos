@@ -123,14 +123,6 @@
     path: ~/.ssh/id_rsa
   when: not ssh_key_pair.stat.exists
 
-- name: Add all nodes with public key to ssh known_hosts file
-  become: true
-  become_user: "{{ user_ssh_public_key }}"
-  known_hosts:
-    name: "{{ item.addresses.eth0[0] }}"
-    hash_host: true
-    key: ",{{ item.addresses.eth0[0] }} {{ lookup('ansible.builtin.file', '~/.ssh/id_rsa') }}"
-  loop:  "{{containers_struct.results}}"
 
 - name: Upload public key from host VM to authorized_keys of all containers
   become: true
@@ -141,6 +133,17 @@
     - "kmaster"
     - "kworker1"
     - "kworker2"
+
+
+- name: Add all nodes with public key to ssh known_hosts file
+  become: true
+  become_user: "{{ user_ssh_public_key }}"
+  known_hosts:
+    name: "{{ item.addresses.eth0[0] }}"
+    hash_host: true
+    key: "{{ lookup('pipe', 'ssh-keyscan -t rsa {{ item.addresses.eth0[0] }}') }}"
+  loop:  "{{containers_struct.results}}"
+
 
 - name: Disable Password authentication for SSH on all containers and restart SSH daemon
   shell:
