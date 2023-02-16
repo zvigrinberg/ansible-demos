@@ -112,25 +112,21 @@
     kubeadm init --ignore-preflight-errors=all --v=5
   delegate_to: "{{ leading_master }}"
   run_once: true
-  tags:
-    - debug
-    -
+
 - name: create kubeconfig file on master
   shell: |
     mkdir /root/.kube
     cp /etc/kubernetes/admin.conf /root/.kube/config
   delegate_to: "{{ leading_master }}"
   run_once: true
-  tags:
-    - debug
+
 
 - name: Extract join command for workers
   delegate_to: "{{ leading_master }}"
   run_once: true
   command: kubeadm token create --print-join-command
   register: join_command
-  tags:
-    - debug
+
 #- name: Add new master to control-plane
 #//todo
 
