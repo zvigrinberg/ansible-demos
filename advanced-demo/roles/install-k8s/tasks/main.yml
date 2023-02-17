@@ -167,6 +167,7 @@
 
 - name: Install helm on master node
   delegate_to: "{{ leading_master }}"
+  run_once: true
   shell: |
     curl -fsSL -o /tmp/get_helm.sh https://raw.githubusercontent.com/helm/helm/main/scripts/get-helm-3
     chmod 700 /tmp/get_helm.sh
@@ -185,6 +186,7 @@
 
 - name: Install Cilium for containers Networking and network policies
   delegate_to: "{{ leading_master }}"
+  run_once: true
   kubernetes.core.helm:
     name: cilium
     chart_ref: cilium/cilium
@@ -204,7 +206,6 @@
     state: restarted
   tags:
     - debug
-
 
 
 - name: Install kubectl on control host
@@ -239,7 +240,6 @@
     mode: "777"
   tags:
     - debug
-
 
 
 - name: Apply metrics-server manifest to the cluster.
