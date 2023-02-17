@@ -146,6 +146,8 @@
   command: "{{ join_command.stdout }} --ignore-preflight-errors=all --v=5"
   with_items: "{{ groups['workers'] }}"
   when: item not "localhost"
+  tags:
+    - debug
 
 
 - name: Copy systemd unit mount file for BPF to all nodes
@@ -153,6 +155,8 @@
     src: sys-fs-bpf.mount
     dest: /etc/systemd/system/sys-fs-bpf.mount
     mode: "777"
+  tags:
+    - debug
 
 - name: Mount BPF device on all nodes.
   mount:
@@ -170,6 +174,8 @@
     curl -fsSL -o /tmp/get_helm.sh https://raw.githubusercontent.com/helm/helm/main/scripts/get-helm-3
     chmod 700 /tmp/get_helm.sh
     /tmp/get_helm.sh
+  tags:
+    - debug
 
 
 - name: Add cilium helm repo
@@ -177,6 +183,8 @@
   kubernetes.core.helm_repository:
     name: cilium
     repo_url: https://helm.cilium.io/
+  tags:
+    - debug
 
 - name: Install Cilium for containers Networking and network policies
   delegate_to: "{{ leading_master }}"
@@ -186,6 +194,8 @@
     chart_version: "{{ cilium_chart_version }}"
     namespace: kube-system
     state: present
+  tags:
+    - debug
 
 #- name: Mount cgroupv2 on all hosts and make it shared
 #  command: mount /run/cilium/cgroupv2 --make-shared
@@ -209,7 +219,7 @@
     state: present
     classic: true
   tags:
-    - tryout
+    - debug
 
 
 - name: copy kubeconfig to authenticate to cluster from control host
@@ -221,7 +231,7 @@
     mkdir -p ~/.kube
     lxc file pull kmaster/etc/kubernetes/admin.conf ~/.kube/config
   tags:
-    - tryout
+    - debug
 
 - name: Copy manifest of metrics server to control host
   delegate_to: localhost
@@ -231,7 +241,7 @@
     dest: /tmp/metrics-server.yaml
     mode: "777"
   tags:
-    - tryout
+    - debug
 
 
 
@@ -244,4 +254,4 @@
     state: present
     src: /tmp/metrics-server.yaml
   tags:
-    - tryout
+    - debug
