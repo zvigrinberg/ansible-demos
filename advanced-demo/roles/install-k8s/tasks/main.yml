@@ -23,14 +23,16 @@
       - gpg
     state: present
 
-- name: Install lxc-python2 Package
+- name: Install python k8s Package
+  delegate_to: localhost
+  run_once: true
   ansible.builtin.pip:
     name: kubernetes
     state: present
     executable: /home/zgrinber/.local/bin/pip3
   tags:
     - tryout
-    
+
 - name: Add cri-o apt repository to hosts
   shell: |
     echo "deb [signed-by=/usr/share/keyrings/libcontainers-archive-keyring.gpg] https://download.opensuse.org/repositories/devel:/kubic:/libcontainers:/stable/{{ crio_os_version }}/ /" > /etc/apt/sources.list.d/devel:kubic:libcontainers:stable.list
