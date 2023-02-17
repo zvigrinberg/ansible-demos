@@ -198,6 +198,7 @@
   snap:
     name: kubectl
     state: present
+    classic: true
   tags:
     - tryout
 
