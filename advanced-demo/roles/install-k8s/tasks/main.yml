@@ -30,8 +30,7 @@
     name: kubernetes
     state: present
     executable: /home/zgrinber/.local/bin/pip3
-  tags:
-    - tryout
+
 
 - name: Add cri-o apt repository to hosts
   shell: |
@@ -81,8 +80,6 @@
     name: crio
     enabled: true
     state: started
-  tags:
-    - debug
 
 - name: install https and certificates tools
   apt:
