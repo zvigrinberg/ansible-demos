@@ -16,4 +16,239 @@
     - 10257
 
 
+- name: Installs curl and gpg if it doesn't installed
+  apt:
+    package:
+      - curl
+      - gpg
+    state: present
 
+- name: Install python k8s Package
+  delegate_to: localhost
+  run_once: true
+  ansible.builtin.pip:
+    name: kubernetes
+    state: present
+    executable: /home/zgrinber/.local/bin/pip3
+
+
+- name: Add cri-o apt repository to hosts
+  shell: |
+    echo "deb [signed-by=/usr/share/keyrings/libcontainers-archive-keyring.gpg] https://download.opensuse.org/repositories/devel:/kubic:/libcontainers:/stable/{{ crio_os_version }}/ /" > /etc/apt/sources.list.d/devel:kubic:libcontainers:stable.list
+    echo "deb [signed-by=/usr/share/keyrings/libcontainers-crio-archive-keyring.gpg] https://download.opensuse.org/repositories/devel:/kubic:/libcontainers:/stable:/cri-o:/{{ crio_version }}/{{ crio_os_version }}/ /" > /etc/apt/sources.list.d/devel:kubic:libcontainers:stable:cri-o:{{ crio_version }}.list
+
+- name: Download gpg keys for the cri-o repostiory and fetch repositories.
+  shell: |
+    mkdir -p /usr/share/keyrings
+    curl -L https://download.opensuse.org/repositories/devel:/kubic:/libcontainers:/stable/{{ crio_os_version }}/Release.key | gpg --dearmor -o /usr/share/keyrings/libcontainers-archive-keyring.gpg
+    curl -L https://download.opensuse.org/repositories/devel:/kubic:/libcontainers:/stable:/cri-o:/{{ crio_version }}/{{ crio_os_version }}/Release.key | gpg --dearmor -o /usr/share/keyrings/libcontainers-crio-archive-keyring.gpg
+    apt-get update
+
+- name: Install cri-o container runtime and its dependencies
+  apt:
+    package:
+      - cri-o
+      - cri-o-runc
+      - libbtrfs-dev
+      - containers-common
+      - git
+      - golang-go
+      - libassuan-dev
+      - libdevmapper-dev
+      - libglib2.0-dev
+      - libc6-dev
+      - libgpgme-dev
+      - libgpg-error-dev
+      - libseccomp-dev
+      - libsystemd-dev
+      - libselinux1-dev
+      - pkg-config
+      - go-md2man
+      - cri-o-runc
+      - libudev-dev
+      - software-properties-common
+      - gcc
+      - make
+    update_cache: true
+
+- name: Make sure systemd Is up to date with latest changes
+  systemd:
+    daemon_reload: true
+
+- name: Enable and start cri-o container runtime on all nodes
+  service:
+    name: crio
+    enabled: true
+    state: started
+
+- name: install https and certificates tools
+  apt:
+    package:
+      - apt-transport-https
+      - ca-certificates
+      - curl
+    state: present
+
+
+- name: Add kubernetes apt repository to hosts
+  shell: |
+    sudo curl -fsSLo /etc/apt/keyrings/kubernetes-archive-keyring.gpg https://packages.cloud.google.com/apt/doc/apt-key.gpg
+    echo "deb [signed-by=/etc/apt/keyrings/kubernetes-archive-keyring.gpg] https://apt.kubernetes.io/ kubernetes-xenial main" | sudo tee /etc/apt/sources.list.d/kubernetes.list
+
+
+- name: Install k8s components on nodes
+  apt:
+    pkg:
+      - kubelet
+      - kubeadm
+      - kubectl
+    update_cache: true
+
+
+- name: Hold k8s components on all nodes
+  dpkg_selections:
+    name: "{{ item }}"
+    selection: hold
+  loop:
+    - kubeadm
+    - kubelet
+    - kubectl
+
+- name: init cluster control-plane
+  shell: |
+    kubeadm init --ignore-preflight-errors=all --v=5
+  delegate_to: "{{ leading_master }}"
+  run_once: true
+
+- name: create kubeconfig file on master
+  shell: |
+    mkdir /root/.kube
+    cp /etc/kubernetes/admin.conf /root/.kube/config
+  delegate_to: "{{ leading_master }}"
+  run_once: true
+
+
+- name: Extract join command for workers
+  delegate_to: "{{ leading_master }}"
+  run_once: true
+  command: kubeadm token create --print-join-command
+  register: join_command
+
+#- name: Add new master to control-plane
+#//todo
+
+- name: Join all workers to cluster
+  delegate_to: "{{ item }}"
+  run_once: true
+  command: "{{ join_command.stdout }} --ignore-preflight-errors=all --v=5"
+  with_items: "{{ groups['workers'] }}"
+  when: item != 'localhost'
+  tags:
+    - debug
+
+
+- name: Copy systemd unit mount file for BPF to all nodes
+  copy:
+    src: sys-fs-bpf.mount
+    dest: /etc/systemd/system/sys-fs-bpf.mount
+    mode: "777"
+  tags:
+    - debug
+
+- name: Mount BPF device on all nodes.
+  mount:
+    state: mounted
+    fstype: bpf
+    src: bpffs
+    path: /sys/fs/bpf
+  tags:
+    - debug
+
+
+- name: Install helm on master node
+  delegate_to: "{{ leading_master }}"
+  run_once: true
+  shell: |
+    curl -fsSL -o /tmp/get_helm.sh https://raw.githubusercontent.com/helm/helm/main/scripts/get-helm-3
+    chmod 700 /tmp/get_helm.sh
+    /tmp/get_helm.sh
+  tags:
+    - debug
+
+
+- name: Add cilium helm repo
+  delegate_to: "{{ leading_master }}"
+  kubernetes.core.helm_repository:
+    name: cilium
+    repo_url: https://helm.cilium.io/
+  tags:
+    - debug
+
+- name: Install Cilium for containers Networking and network policies
+  delegate_to: "{{ leading_master }}"
+  run_once: true
+  kubernetes.core.helm:
+    name: cilium
+    chart_ref: cilium/cilium
+    chart_version: "{{ cilium_chart_version }}"
+    namespace: kube-system
+    state: present
+  tags:
+    - debug
+
+#- name: Mount cgroupv2 on all hosts and make it shared
+#  command: mount /run/cilium/cgroupv2 --make-shared
+#  retries: 3
+#
+- name: Restart Kubelet on all nodes
+  service:
+    name: kubelet
+    state: restarted
+  tags:
+    - debug
+
+
+- name: Install kubectl on control host
+  delegate_to: localhost
+  run_once: true
+  become: true
+  snap:
+    name: kubectl
+    state: present
+    classic: true
+  tags:
+    - debug
+
+
+- name: copy kubeconfig to authenticate to cluster from control host
+  delegate_to: localhost
+  run_once: true
+  become: true
+  become_user: "{{ user_on_host }}"
+  shell: |
+    mkdir -p ~/.kube
+    lxc file pull kmaster/etc/kubernetes/admin.conf ~/.kube/config
+  tags:
+    - debug
+
+- name: Copy manifest of metrics server to control host
+  delegate_to: localhost
+  run_once: true
+  copy:
+    src: metrics-server.yaml
+    dest: /tmp/metrics-server.yaml
+    mode: "777"
+  tags:
+    - debug
+
+
+- name: Apply metrics-server manifest to the cluster.
+  delegate_to: localhost
+  become: true
+  become_user: "{{ user_on_host }}"
+  run_once: true
+  kubernetes.core.k8s:
+    state: present
+    src: /tmp/metrics-server.yaml
+  tags:
+    - debug

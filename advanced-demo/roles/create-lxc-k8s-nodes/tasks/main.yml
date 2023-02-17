@@ -11,6 +11,7 @@
     - lxc
     - lxc-dev
     - python3-pip
+    - curl
 
 - name: Install lxc-python2 Package
   ansible.builtin.pip:
@@ -59,6 +60,17 @@
     - "kworker2"
   register: containers_struct
 
+
+- name: Delete lxc Containers
+  lxd_container:
+    name: "{{ item }}"
+    state: absent
+  loop:
+    - "kmaster"
+    - "kworker1"
+    - "kworker2"
+  tags: never
+
 - name: Debug containers Struct
   debug:
     msg: "{{ containers_struct.results}}"
@@ -89,13 +101,36 @@
   when: '"master" in item.item'
   loop:  "{{containers_struct.results}}"
 
+# Remove never tag if openssh is not present in the container image
 - name: Install Openssh Server on all containers
   shell:
-    cmd: lxc exec {{ item }} -- bash -c "apt install openssh-server"
+    cmd: lxc exec {{ item }} -- bash -c "apt-get -y install openssh-server"
   loop:
     - "kmaster"
     - "kworker1"
     - "kworker2"
+
+#- name: Make sure that ssh service is up and running on all nodes
+#  service:
+#    name: ssh
+#    enabled: true
+#    state: started
+
+
+- name: Checks whether ssh key pair exists
+  become: true
+  become_user: "{{ user_ssh_public_key }}"
+  stat:
+    path: ~/.ssh/id_rsa
+  register: ssh_key_pair
+
+- name: Generate ssh key pair if doesn't exists
+  become: true
+  become_user: "{{ user_ssh_public_key }}"
+  openssh_keypair:
+    path: ~/.ssh/id_rsa
+  when: not ssh_key_pair.stat.exists
+
 
 - name: Upload public key from host VM to authorized_keys of all containers
   become: true
@@ -106,6 +141,17 @@
     - "kmaster"
     - "kworker1"
     - "kworker2"
+
+
+- name: Add all nodes with public key to ssh known_hosts file
+  become: true
+  become_user: "{{ user_ssh_public_key }}"
+  known_hosts:
+    name: "{{ item.addresses.eth0[0] }}"
+    hash_host: true
+    key: "{{ lookup('pipe', 'ssh-keyscan -t rsa {{ item.addresses.eth0[0] }}') }}"
+  loop:  "{{containers_struct.results}}"
+
 
 - name: Disable Password authentication for SSH on all containers and restart SSH daemon
   shell:
