@@ -16,12 +16,14 @@
     - 10257
 
 
-- name: Installs curl and gpg if it doesn't installed
+- name: Installs curl and gpg, and python3-pip if it doesn't installed
   apt:
     package:
       - curl
       - gpg
+      - python3-pip
     state: present
+  tags: tryout
 
 - name: Add cri-o apt repository to hosts
   shell: |
@@ -187,18 +189,44 @@
   tags:
     - debug
 
-- name: Copy manifest of metrics server to master
-  delegate_to: "{{ leading_master }}"
+- name: Install kubectl on control host
+  delegate_to: localhost
+  run_once: true
+  become: true
+  apt:
+    name: kubectl
+    state: present
+    update_cache: true
+  tags:
+    - tryout
+
+- name: copy kubeconfig to authenticate to cluster from control host
+  delegate_to: localhost
+  run_once: true
+  become: true
+  become_user: "{{ user_on_host }}"
+  shell: |
+    mkdir -p ~/.kube
+    lxc file pull kmaster/etc/kubernetes/admin.conf ~/.kube/config
+  tags:
+    - tryout
+
+- name: Copy manifest of metrics server to control host
+  delegate_to: localhost
   run_once: true
   copy:
     src: metrics-server.yaml
     dest: /tmp/metrics-server.yaml
     mode: "777"
   tags:
-    - debug
+    - tryout
+
+
 
 - name: Apply metrics-server manifest to the cluster.
-  delegate_to: "{{ leading_master }}"
+  delegate_to: localhost
+  become: true
+  become_user: "{{ user_on_host }}"
   run_once: true
   kubernetes.core.k8s:
     state: present
