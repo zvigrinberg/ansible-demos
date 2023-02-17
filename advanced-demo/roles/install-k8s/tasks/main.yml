@@ -145,6 +145,7 @@
   run_once: true
   command: "{{ join_command.stdout }} --ignore-preflight-errors=all --v=5"
   with_items: "{{ groups['workers'] }}"
+  when: item not "localhost"
 
 
 - name: Copy systemd unit mount file for BPF to all nodes
