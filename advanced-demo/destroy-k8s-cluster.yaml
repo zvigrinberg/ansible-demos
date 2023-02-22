@@ -1,0 +1,21 @@
+- hosts: localhost
+  become: false
+  tasks:
+    - name: stop lxc Containers (k8s nodes)
+      lxd_container:
+        name: "{{ item }}"
+        state: stopped
+      loop:
+        - "kmaster"
+        - "kworker1"
+        - "kworker2"
+
+    - name: delete lxc Containers (k8s nodes)
+      lxd_container:
+        name: "{{ item }}"
+        state: absent
+      loop:
+        - "kmaster"
+        - "kworker1"
+        - "kworker2"
+
