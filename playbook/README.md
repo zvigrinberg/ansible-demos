@@ -79,5 +79,5 @@ all:
 ```shell
 ansible-playbook -i inventory.yaml playbook.yaml
 ```
-
-2. Verify on each host that tree utility was installed, verify that at least one Fedora CoreOs Was restarted.
+2. Verify while playbook is running, that at least one Fedora CoreOs is restarting.
+3. After playbook run finished, verify on each host that tree utility was installed 
