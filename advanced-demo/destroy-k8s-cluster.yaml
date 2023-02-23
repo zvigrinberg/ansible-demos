@@ -11,6 +11,7 @@
         - "kmaster"
         - "kworker1"
         - "kworker2"
+        - "kworker3"
 
     - name: delete lxc Containers (k8s nodes)
       lxd_container:
