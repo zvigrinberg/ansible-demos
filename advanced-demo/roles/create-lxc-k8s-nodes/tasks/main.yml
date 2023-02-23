@@ -58,6 +58,7 @@
     - "kmaster"
     - "kworker1"
     - "kworker2"
+    - "kworker3"
   register: containers_struct
 
 
@@ -69,6 +70,7 @@
     - "kmaster"
     - "kworker1"
     - "kworker2"
+    - "kworker3"
   tags: never
 
 - name: Debug containers Struct
@@ -109,6 +111,7 @@
     - "kmaster"
     - "kworker1"
     - "kworker2"
+    - "kworker3"
 
 #- name: Make sure that ssh service is up and running on all nodes
 #  service:
@@ -141,6 +144,7 @@
     - "kmaster"
     - "kworker1"
     - "kworker2"
+    - "kworker3"
 
 
 - name: Add all nodes with public key to ssh known_hosts file
@@ -160,6 +164,7 @@
     - "kmaster"
     - "kworker1"
     - "kworker2"
+    - "kworker3"
 
 - name: Check python3 is installed in containers
   delegate_to: "{{item}}"
@@ -171,6 +176,7 @@
     - "kmaster"
     - "kworker1"
     - "kworker2"
+    - "kworker3"
 
 #    changed_when: false
 

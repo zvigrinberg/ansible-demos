@@ -7,7 +7,6 @@
         state: stopped
         force_stop: true
         timeout: 45
-
       loop:
         - "kmaster"
         - "kworker1"
@@ -21,4 +20,5 @@
         - "kmaster"
         - "kworker1"
         - "kworker2"
+        - "kworker3"
 
