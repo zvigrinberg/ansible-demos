@@ -1,11 +1,11 @@
-- name: Install tree fs utility on CoreOs machines and reboot system
+- name: Install/Uninstall tree fs utility on CoreOs machines and reboot system
   hosts: virtualMachinesCoreOs
   become: true
   tasks:
-   - name: Install tree fs utility
+   - name: Install/Uninstall tree fs utility
      community.general.rpm_ostree_pkg:
        name: tree
-       state: present
+       state: "{{ operation }}"
 
    - name: reboot the machine
      ansible.builtin.reboot:
@@ -15,14 +15,14 @@
 #       var: ansible_facts
        msg: "Successfully {{ successMessage }} - {{ ansible_nodename }}, with IP Address: {{ ansible_facts['all_ipv4_addresses'] }} "
 
-- name: Install tree fs utility on ubuntu machines
+- name: Install/Uninstall tree fs utility on ubuntu machines
   hosts: virtualMachinesUbuntu
   become: true
   tasks:
-    - name: Install tree fs utility
+    - name: Install/Uninstall tree fs utility
       ansible.builtin.apt:
         name: tree
-        state: present
+        state: "{{ operation }}"
     - name: Print success Message
       ansible.builtin.debug:
 #        var: ansible_facts

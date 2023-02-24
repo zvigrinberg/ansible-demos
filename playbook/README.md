@@ -74,10 +74,38 @@ all:
 ```
 
 ### Procedure
-
-1. Run the playbook with the inventory above
+1. Start all virtual machines
+```shell
+for vm in coreos-01  coreos-02 coreos-03 ubuntu-01 ubuntu-02 ubuntu-03
+do virsh --connect qemu:///system start $vm 
+done
+```
+2. Run the playbook with the inventory above
 ```shell
 ansible-playbook -i inventory.yaml playbook.yaml
 ```
-2. Verify while playbook is running, that at least one Fedora CoreOs is restarting.
-3. After playbook run finished, verify on each host that tree utility was installed 
+3. Verify while playbook is running, that at least one Fedora CoreOs is restarting.
+4. After playbook run finished, verify on each host that tree utility was installed
+```shell
+for ip in $(virsh --connect qemu:///system net-dhcp-leases default | grep -E 'ubuntu|core-os' | awk '{print $5}' | awk -F / '{print $1}')
+do 
+echo -n hostname=
+ssh zgrinber@$ip hostname  
+echo ipAddress=$ip
+echo "output of tree /tmp command on '$ip' :"
+ssh zgrinber@$ip tree /tmp
+ssh zgrinber@$ip uname -a
+echo
+echo
+done
+```
+
+5. Now uninstall tree utility using the same playbook
+```shell
+ansible-playbook  -i inventory.yaml playbook.yaml --extra-vars=operation=absent
+```
+
+6. When finished, shutdown all active VMs in order to evict/free resources on system:
+```shell
+virsh --connect qemu:///system list | grep -i running | awk '{print $2}' | xargs -i virsh --connect qemu:///system shutdown {}
+```
