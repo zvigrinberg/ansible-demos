@@ -29,10 +29,17 @@ sudo virt-install --connect qemu:///system --name ubuntu-demo --os-variant ubunt
 **Note: The Ubunutu installer has an automatic feature that installs automatically your github ssh public keys on the host (after you input your github account)**
 
 ## Procedure
-
-1. ssh into ubuntu VM host
+1. Start VM. 
 ```shell
-ssh zgrinber@192.168.122.186
+virsh --connect qemu:///system start ubuntu-demo
+# wait 10-15 seconds and get the IP of VM
+export UBUNTU_DEMO_VM_IP=$(virsh --connect qemu:///system net-dhcp-leases default | grep ubuntu-demo | awk '{print $5}' | awk -F / '{print $1}')
+```
+
+    
+2. ssh into ubuntu VM host
+```shell
+ssh zgrinber@$UBUNTU_DEMO_VM_IP
 Welcome to Ubuntu 22.04.1 LTS (GNU/Linux 5.15.0-60-generic x86_64)
 
  * Documentation:  https://help.ubuntu.com
@@ -65,7 +72,7 @@ Last login: Wed Feb 22 15:48:28 2023 from 192.168.122.1
 zgrinber@ubuntu-demo:~$ 
 
 ```
-2. Deploy the cluster by running the following ansible playbook, which consist from 2 plays, each one invokes a different role:
+3. Deploy the cluster by running the following ansible playbook, which consist from 2 plays, each one invokes a different role:
 ```yaml
 - hosts: localhost
   become: true
@@ -84,7 +91,7 @@ Input your sudo password:
 ansible-playbook create-k8s-cluster.yaml -K
 ```
 
-3. The process should take approximately 6 minutes, once the playbook run is finished, you can validate that the installation was successful by running the following:
+4. The process should take approximately 6 minutes, once the playbook run is finished, you can validate that the installation was successful by running the following:
 ```shell
 kubectl get nodes -o wide
 ```
@@ -96,7 +103,7 @@ kworker1   Ready    <none>          3m   v1.26.1   10.136.18.143   <none>       
 kworker2   Ready    <none>          3m   v1.26.1   10.136.18.100   <none>        Ubuntu 22.04.2 LTS   5.15.0-60-generic   cri-o://1.26.1
 kworker3   Ready    <none>          3m   v1.26.1   10.136.18.128   <none>        Ubuntu 22.04.2 LTS   5.15.0-60-generic   cri-o://1.26.1
 ```
-4. After few seconds, list all pods in cluster
+5. After few seconds, list all pods in cluster
 ```shell
 kubectl get pods -A -o wide
 ```
@@ -122,7 +129,7 @@ kube-system   kube-scheduler-kmaster             1/1     Running   0          3m
 kube-system   metrics-server-789897fb69-kg5fk    1/1     Running   0          3m   10.136.18.128   kworker3   <none>           <none>
 ```
 
-5. You can list metrics of cpu and memory usage of nodes and pods:
+6. You can list metrics of cpu and memory usage of nodes and pods:
 ```shell
 kubectl top nodes
 echo
@@ -156,12 +163,12 @@ kube-system   kube-scheduler-kmaster             4m           24Mi
 kube-system   metrics-server-789897fb69-kg5fk    5m           15Mi
 ```
 
-6. Create a new namespace and deploy there hazelcast application:
+7. Create a new namespace and deploy there hazelcast application:
 ```shell
 kubectl create ns hazelcast; kubectl run hazelcast --image=hazelcast/hazelcast --port=5701 -n hazelcast
 ```
 
-7. Check that the  app is up and running:
+8. Check that the  app is up and running:
 ```shell
 kubectl get pods -n hazelcast -w
 ```
@@ -172,7 +179,7 @@ hazelcast   0/1     ContainerCreating   0          3s
 hazelcast   1/1     Running             0          16s
 ```
 
-8. Check logs of the application:
+9. Check logs of the application:
 ```shell
 kubectl logs hazelcast -n hazelcast
 ```
@@ -218,7 +225,7 @@ Members {size:1, ver:1} [
 2023-02-23 01:21:11,182 [ INFO] [main] [c.h.c.LifecycleService]: [10.0.2.91]:5701 [dev] [5.2.2] [10.0.2.91]:5701 is STARTED
 ```
 
-9. see the system containers that was created for the k8s nodes:
+10. see the system containers that was created for the k8s nodes:
 ```shell
 lxc list
 ```
@@ -243,12 +250,12 @@ Output:
 +----------+---------+--------------------------+-----------------------------------------------+-----------+-----------+
 ```
 
-10. Tear down the cluster now:
+11. Tear down the cluster now:
 ```shell
 ansible-playbook destroy-k8s-cluster.yaml
 ```
 
-11. Make sure that api server is not accessible anymore and the containers deleted:
+12. Make sure that api server is not accessible anymore and the containers deleted:
 ```shell
 lxc list
 +------+-------+------+------+------+-----------+
@@ -256,4 +263,10 @@ lxc list
 +------+-------+------+------+------+-----------+
 kubectl get pods 
 Unable to connect to the server: dial tcp 10.136.18.147:6443: connect: no route to host
+```
+
+13. exit from ssh session, and stop Ubuntu VM
+```shell
+exit
+virsh --connect qemu:///system shutdown ubuntu-demo
 ```
