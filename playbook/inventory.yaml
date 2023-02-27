@@ -8,19 +8,21 @@ virtualMachinesCoreOs:
      ansible_host: 192.168.122.95
 
   vars:
-    successMessage: "installed tree binary on Fedora CoreOS host"
+    successMessageInstall: "installed tree binary on Fedora CoreOS host"
+    successMessageUninstall: "uninstalled tree binary on Fedora CoreOS host"
 
 virtualMachinesUbuntu:
   hosts:
     ubuntu-01:
-      ansible_host: 192.168.122.233
+      ansible_host: 192.168.122.215
     ubuntu-02:
-      ansible_host: 192.168.122.85
+      ansible_host: 192.168.122.249
     ubuntu-03:
-      ansible_host: 192.168.122.245
+      ansible_host: 192.168.122.156
 
   vars:
-    successMessage: "installed tree binary on  Ubuntu host"
+    successMessageInstall: "installed tree binary on Ubuntu host"
+    successMessageUninstall: "uninstalled tree binary on Ubuntu host"
 
 all:    
   vars:

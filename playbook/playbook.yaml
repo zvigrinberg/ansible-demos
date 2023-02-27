@@ -10,10 +10,18 @@
    - name: reboot the machine
      ansible.builtin.reboot:
 
-   - name: Print success Message
+   - name: Print success Message Install
      ansible.builtin.debug:
 #       var: ansible_facts
-       msg: "Successfully {{ successMessage }} - {{ ansible_nodename }}, with IP Address: {{ ansible_facts['all_ipv4_addresses'] }} "
+       msg: "Successfully {{ successMessageInstall }} - {{ ansible_nodename }}, with IP Address: {{ ansible_facts['all_ipv4_addresses'] }} "
+     when: operation == "present"
+
+   - name: Print success Message Uninstall
+     ansible.builtin.debug:
+#       var: ansible_facts
+       msg: "Successfully {{ successMessageUninstall }} - {{ ansible_nodename }}, with IP Address: {{ ansible_facts['all_ipv4_addresses'] }} "
+     when: operation == "absent"
+
 
 - name: Install/Uninstall tree fs utility on ubuntu machines
   hosts: virtualMachinesUbuntu
@@ -26,4 +34,11 @@
     - name: Print success Message
       ansible.builtin.debug:
 #        var: ansible_facts
-        msg: "Successfully {{ successMessage }} - {{ ansible_nodename }}, with IP Address: {{ ansible_facts['all_ipv4_addresses'] }}  "
+        msg: "Successfully {{ successMessageInstall }} - {{ ansible_nodename }}, with IP Address: {{ ansible_facts['all_ipv4_addresses'] }}  "
+      when: operation == "present"
+
+    - name: Print success Message Uninstall
+      ansible.builtin.debug:
+        msg: "Successfully {{ successMessageUninstall }} - {{ ansible_nodename }}, with IP Address: {{ ansible_facts['all_ipv4_addresses'] }}  "
+      when: operation == "absent"
+
