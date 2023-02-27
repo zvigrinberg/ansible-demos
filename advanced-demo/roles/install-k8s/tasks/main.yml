@@ -95,6 +95,17 @@
     sudo curl -fsSLo /etc/apt/keyrings/kubernetes-archive-keyring.gpg https://packages.cloud.google.com/apt/doc/apt-key.gpg
     echo "deb [signed-by=/etc/apt/keyrings/kubernetes-archive-keyring.gpg] https://apt.kubernetes.io/ kubernetes-xenial main" | sudo tee /etc/apt/sources.list.d/kubernetes.list
 
+- name: Get info of key file /etc/apt/keyrings/kubernetes-archive-keyring.gpg
+  ansible.builtin.stat:
+    path: /etc/apt/keyrings/kubernetes-archive-keyring.gpg
+  register: k8sfile
+
+- name: Copy systemd unit mount file for BPF to all nodes
+  copy:
+    src: apt-key.gpg
+    dest: /etc/apt/keyrings/kubernetes-archive-keyring.gpg
+    mode: "777"
+  when: k8sfile.stat.path is not defined
 
 - name: Install k8s components on nodes
   apt:
