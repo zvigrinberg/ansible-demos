@@ -103,6 +103,14 @@
   when: '"master" in item.item'
   loop:  "{{containers_struct.results}}"
 
+# Need to delete known_hosts file in order to avoid collisions of provisioned containers' ip's with historic ip`s
+- name: delete known_hosts file on Host
+  become: true
+  become_user: "{{ user_ssh_public_key }}"
+  ansible.builtin.file:
+    path: ~/.ssh/known_hosts
+    state: absent
+
 # Remove never tag if openssh is not present in the container image
 - name: Install Openssh Server on all containers
   shell:
