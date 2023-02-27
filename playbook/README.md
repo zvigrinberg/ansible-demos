@@ -80,9 +80,9 @@ for vm in coreos-01  coreos-02 coreos-03 ubuntu-01 ubuntu-02 ubuntu-03
 do virsh --connect qemu:///system start $vm 
 done
 ```
-2. Run the playbook with the inventory above
+2. Run the playbook with the inventory above and enter become password (installing packages is a privileged action on VMs):
 ```shell
-ansible-playbook -i inventory.yaml playbook.yaml
+ansible-playbook -i inventory.yaml playbook.yaml -K
 ```
 3. Verify while playbook is running, that at least one Fedora CoreOs is restarting.
 4. After playbook run finished, verify on each host that tree utility was installed
@@ -92,8 +92,8 @@ do
 echo -n hostname=
 ssh zgrinber@$ip hostname  
 echo ipAddress=$ip
-echo "output of tree /tmp command on '$ip' :"
-ssh zgrinber@$ip tree /tmp
+echo "output of tree -a /home command on '$ip' :"
+ssh zgrinber@$ip tree -a /home
 ssh zgrinber@$ip uname -a
 echo
 echo
