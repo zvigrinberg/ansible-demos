@@ -100,7 +100,7 @@
     path: /etc/apt/keyrings/kubernetes-archive-keyring.gpg
   register: k8sfile
 
-- name: Copy systemd unit mount file for BPF to all nodes
+- name: Copy apt-key.gpg public key, in case it failed to download it from google server
   copy:
     src: apt-key.gpg
     dest: /etc/apt/keyrings/kubernetes-archive-keyring.gpg
