@@ -102,7 +102,7 @@ done
 
 5. Now uninstall tree utility using the same playbook
 ```shell
-ansible-playbook  -i inventory.yaml playbook.yaml --extra-vars=operation=absent
+ansible-playbook  -i inventory.yaml playbook.yaml --extra-vars=operation=absent -K
 ```
 
 6. When finished, shutdown all active VMs in order to evict/free resources on system:
