@@ -1,7 +1,7 @@
 # Advanced Ansible Demo - Playbook that invokes two roles
 
 ## Objectives: 
-- To show capabilities of ansible in provisioning infrastructure ( hosts ) by first role.
+- To show capabilities of ansible in provisioning infrastructure ( hosts ) by a role.
 - Then use them dynamically in the second role to install on provisioned hosts kubernetes cluster 
 - We'll use LXD Linux Containers ( System containers) , which are kind of a very lightweight VM, but still give you the full power of a full operation-system like in VM,
   And as system containers, it has 3 benefits over traditional VM and application containers ( docker, podman , k8s) :
