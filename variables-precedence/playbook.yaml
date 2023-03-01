@@ -1,0 +1,21 @@
+- name: Variable Precedence Demo
+  hosts: all
+  vars:
+    testKey: playbookAllVarsValue # Priority 3      
+  tasks:
+
+   - name: Print Variable value
+     vars:
+       testKey: tasksvalue # Priority 2
+     ansible.builtin.debug:
+       msg: "Value of testKey = {{ testKey }}"
+   
+
+
+
+
+
+
+
+
+

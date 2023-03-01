@@ -1,0 +1,12 @@
+groupA:
+  hosts:      
+   coreos-01:
+     ansible_host: 192.168.122.52
+     testKey: inventoryHostVarValue # Priority 4
+
+  vars:
+     testKey: inventoryGroupVarValue # Priority 5
+  
+all:    
+  vars:
+    testKey: inventoryAllVarValue # Priority 6
