@@ -232,7 +232,7 @@ Members {size:1, ver:1} [
 2023-02-23 01:21:11,182 [ INFO] [main] [c.h.c.LifecycleService]: [10.0.2.91]:5701 [dev] [5.2.2] [10.0.2.91]:5701 is STARTED
 ```
 
-11. see the system containers that was created for the k8s nodes:
+11. see the system containers that were created for the k8s nodes:
 ```shell
 lxc list
 ```
